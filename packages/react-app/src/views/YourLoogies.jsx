@@ -18,7 +18,7 @@ function Home({
 }) {
   return (
     <div>
-      <div style={{ width: 600, margin: "auto", paddingBottom: 25 }}>
+      <div style={{ width: 1050, margin: "auto", paddingBottom: 25 }}>
         <List
           dataSource={yourCollectibles}
           renderItem={item => {

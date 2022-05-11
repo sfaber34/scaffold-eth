@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import './Structs.sol';
+import 'hardhat/console.sol';
+
+contract SystemData {
+
+  uint public systemI;
+
+  Structs.System[] public systems;
+  Structs.Planet[] public planets;
+
+  function createSystem(
+      string memory name,
+      uint256 distToSol,
+      uint256 stRadius,
+      string memory stColor,
+      uint8[] memory plRadius, 
+      uint16[] memory plOrbDist
+    ) public {
+
+    systems.push(Structs.System({
+      name: name,
+      distToSol: distToSol,
+      radius: stRadius,
+      color: stColor,
+      owner: msg.sender,
+      planets: new uint256[] (0)
+    }));
+
+    for(uint8 i=0; i<plRadius.length; i++){
+      planets.push(Structs.Planet({
+        radius: plRadius[i],
+        orbDist: plOrbDist[i]
+      }));
+      
+      systems[systems.length-1].planets.push(planets.length-1); 
+    }
+
+    systemI ++;
+  }
+
+  function getSystem(uint256 systemId) external view returns(Structs.System memory returnSystem){
+    returnSystem = systems[systemId];
+
+    return returnSystem;
+  }
+  
+  function getPlanet(uint256 systemId) external view returns(Structs.Planet[] memory returnPlanets){
+    returnPlanets = new Structs.Planet[] (systems[systemId].planets.length);
+    uint256[] memory returnPlanetsId = systems[systemId].planets;
+
+    for(uint256 i=0; i<systems[systemId].planets.length; i++){
+      returnPlanets[i] = planets[returnPlanetsId[i]];
+    }
+    
+    return returnPlanets;
+  }
+}
+

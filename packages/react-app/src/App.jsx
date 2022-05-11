@@ -31,6 +31,91 @@ import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { YourLoogies, Loogies } from "./views";
 import { useStaticJsonRPC } from "./hooks";
+import { create } from 'ipfs-http-client';
+// import { systemData } from "./systemData";
+
+export const systemData = [
+  {
+    "hostname": {
+      "0": "tau Cet",
+      "1": "TRAPPIST-1",
+      "2": "rho CrB",
+      "3": "nu Oph",
+      "4": "gam Lib",
+      "5": "bet Pic",
+      "6": "YZ Cet",
+      "7": "Wolf 1061",
+      "8": "WASP-47",
+      "9": "WASP-41",
+      "10": "WASP-148"
+    },
+    "sy_dist_ly": {
+      "0": 12,
+      "1": 41,
+      "2": 57,
+      "3": 152,
+      "4": 155,
+      "5": 65,
+      "6": 12,
+      "7": 14,
+      "8": 868,
+      "9": 536,
+      "10": 808
+    },
+    "st_rad_norm": {
+      "0": 71,
+      "1": 20,
+      "2": 105,
+      "3": 146,
+      "4": 143,
+      "5": 117,
+      "6": 20,
+      "7": 34,
+      "8": 91,
+      "9": 71,
+      "10": 84
+    },
+    "st_hex": {
+      "0": "ffe9d8",
+      "1": "ffa14c",
+      "2": "ffefe2",
+      "3": "ffe1c9",
+      "4": "ffe0c7",
+      "5": "dce5ff",
+      "6": "ffb677",
+      "7": "ffbb83",
+      "8": "ffeedf",
+      "9": "ffeedf",
+      "10": "ffecdd"
+    },
+    "pl_rad_norm": {
+      "0": [7, 7, 5, 5],
+      "1": [5, 5, 3, 4, 4, 5, 3],
+      "2": [35, 16],
+      "3": [31, 31],
+      "4": [35, 33],
+      "5": [39, 32],
+      "6": [4, 4, 4],
+      "7": [5, 6, 9],
+      "8": [32, 34, 11, 7],
+      "9": [32, 34],
+      "10": [22, 36]
+    },
+    "pl_orb_dist": {
+      "0": [247, 473, 133, 164],
+      "1": [125, 155, 200, 249, 313, 372, 477],
+      "2": [321, 464],
+      "3": [272, 449],
+      "4": [340, 447],
+      "5": [441, 249],
+      "6": [291, 370, 476],
+      "7": [91, 136, 471],
+      "8": [129, 446, 137, 121],
+      "9": [134, 446],
+      "10": [253, 444]
+    }
+  }
+];
 
 const { ethers } = require("ethers");
 /*
@@ -55,9 +140,14 @@ const { ethers } = require("ethers");
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
+// const ipfsAPI = require('ipfs-http-client');
+
+const BufferList = require('bl/BufferList');
+
+
 // 😬 Sorry for all the console logging
-const DEBUG = true;
-const NETWORKCHECK = true;
+const DEBUG = false;
+const NETWORKCHECK = false;
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -297,6 +387,31 @@ function App(props) {
         <Button
           type="primary"
           onClick={async () => {
+            // const priceRightNow = await readContracts.YourCollectible.price();
+            // const systemI = await readContracts.SystemData.systemI();
+            try {
+              for(let i = 0; i < Object.keys(systemData[0]).length; i++){
+                const txCur = await tx(writeContracts.SystemData.createSystem(
+                  systemData[0].hostname[i],
+                  systemData[0].sy_dist_ly[i],
+                  systemData[0].st_rad_norm[i],
+                  systemData[0].st_hex[i],
+                  systemData[0].pl_rad_norm[i],
+                  systemData[0].pl_orb_dist[i]
+                ));
+                await txCur.wait();
+              }
+            } catch (e) {
+              console.log("Load System Data failed", e);
+            }
+          }}
+        >
+          Load System Data
+        </Button>
+        <div style={{height: "10px"}}></div>
+        <Button
+          type="primary"
+          onClick={async () => {
             const priceRightNow = await readContracts.YourCollectible.price();
             try {
               const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));
@@ -365,6 +480,24 @@ function App(props) {
           <div style={{ padding: 32 }}>
             <Address value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address} />
           </div>
+          <Contract
+            name="SystemData"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+          <Contract
+            name="CalculateLayout"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
           <Contract
             name="YourCollectible"
             price={price}
