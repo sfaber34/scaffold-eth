@@ -10,11 +10,11 @@ library Structs {
 
   struct System {
     string name;
-    uint256 distToSol;
-    uint256 radius;
+    uint16 distToSol;
+    uint8 radius;
     string color;
     address owner;
     uint256[] planets;
   }
-  
+
 }

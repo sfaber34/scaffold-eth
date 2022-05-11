@@ -45,6 +45,17 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     systemDataAddress = _systemDataAddress;
   }
 
+  uint8 public stRadiusTest;
+  uint8[] public planetRadiusTest;
+  uint16 public minRadDist;
+
+  function calcRadDist(uint256 id) public {
+    Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
+    Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+
+    minRadDist = system.radius + 50;
+  }  
+
   function mintItem()
       public
       payable

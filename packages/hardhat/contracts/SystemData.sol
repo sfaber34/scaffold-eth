@@ -13,12 +13,15 @@ contract SystemData {
 
   function createSystem(
       string memory name,
-      uint256 distToSol,
-      uint256 stRadius,
+      uint16 distToSol,
+      uint8 stRadius,
       string memory stColor,
-      uint8[] memory plRadius, 
-      uint16[] memory plOrbDist
+      uint8[] memory plRadius 
     ) public {
+    
+    uint16[] memory orbDist = new uint16[] (plRadius.length);
+    uint16 plDiamSum;
+    uint16 orbGap;
 
     systems.push(Structs.System({
       name: name,
@@ -29,10 +32,21 @@ contract SystemData {
       planets: new uint256[] (0)
     }));
 
+    for (uint i=0; i<plRadius.length; i++) {
+      plDiamSum += plRadius[i] * 2;
+    }
+
+    orbGap = (500 - stRadius - plDiamSum) / uint16(plRadius.length);
+    
+    orbDist[0] = stRadius + plRadius[0] + orbGap;
+    for (uint i=1; i<plRadius.length; i++) {
+      orbDist[i] = orbDist[i-1] + plRadius[i] * 2 + orbGap;
+    }
+
     for(uint8 i=0; i<plRadius.length; i++){
       planets.push(Structs.Planet({
         radius: plRadius[i],
-        orbDist: plOrbDist[i]
+        orbDist: orbDist[i]
       }));
       
       systems[systems.length-1].planets.push(planets.length-1); 

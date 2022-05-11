@@ -8,6 +8,7 @@ import 'hardhat/console.sol';
 
 import './HexStrings.sol';
 import './ToColor.sol';
+import './Structs.sol';
 // import './Trigonometry.sol';
 
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
@@ -16,12 +17,43 @@ import './ToColor.sol';
 
 // type Ufixed24x3 is int256;
 
+interface ISystemData {
+  function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
+  function getSystem(uint256) external view returns (Structs.System memory system);
+}
+
 contract CalculateLayout {
 
   using Strings for uint256;
   using HexStrings for uint160;
   using ToColor for bytes3;
   using PRBMathSD59x18 for int256;
+
+  address public systemDataAddress;
+  constructor(address _systemDataAddress) public {
+    systemDataAddress = _systemDataAddress;
+  }
+
+  uint8 public stRadiusTest;
+  uint8[] public planetRadiusTest;
+  uint16 public minOrbDist;
+  uint16[] public orbDist;
+
+  function calcOrbDist(uint256 id) public {
+    Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
+    Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+
+    orbDist = new uint16[] (planets.length);
+    orbDist[0] = system.radius + planets[0].radius * 2 + 50;
+    
+    console.log(orbDist[0]);
+
+    for (uint i=1; i<planets.length; i++) {
+      orbDist[i] = orbDist[i-1] + planets[i].radius * 2;
+      console.log(i);
+      console.log(orbDist[i]);
+    }  
+  } 
 
   // function calcStarColor(int256 starTemp) public returns (int256) {
   //   int256 red;

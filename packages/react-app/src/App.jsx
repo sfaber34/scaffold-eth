@@ -91,7 +91,7 @@ export const systemData = [
     "pl_rad_norm": {
       "0": [7, 7, 5, 5],
       "1": [5, 5, 3, 4, 4, 5, 3],
-      "2": [35, 16],
+      "2": [35, 16, 22],
       "3": [31, 31],
       "4": [35, 33],
       "5": [39, 32],
@@ -104,7 +104,7 @@ export const systemData = [
     "pl_orb_dist": {
       "0": [247, 473, 133, 164],
       "1": [125, 155, 200, 249, 313, 372, 477],
-      "2": [321, 464],
+      "2": [321, 464, 464],
       "3": [272, 449],
       "4": [340, 447],
       "5": [441, 249],
@@ -388,19 +388,28 @@ function App(props) {
           type="primary"
           onClick={async () => {
             // const priceRightNow = await readContracts.YourCollectible.price();
-            // const systemI = await readContracts.SystemData.systemI();
+            const systemI = await readContracts.SystemData.systemI();
             try {
-              for(let i = 0; i < Object.keys(systemData[0]).length; i++){
                 const txCur = await tx(writeContracts.SystemData.createSystem(
-                  systemData[0].hostname[i],
-                  systemData[0].sy_dist_ly[i],
-                  systemData[0].st_rad_norm[i],
-                  systemData[0].st_hex[i],
-                  systemData[0].pl_rad_norm[i],
-                  systemData[0].pl_orb_dist[i]
+                  systemData[0].hostname[systemI],
+                  systemData[0].sy_dist_ly[systemI],
+                  systemData[0].st_rad_norm[systemI],
+                  systemData[0].st_hex[systemI],
+                  systemData[0].pl_rad_norm[systemI]
+                  // systemData[0].pl_orb_dist[systemI]
                 ));
                 await txCur.wait();
-              }
+              // for(let i = 0; i < Object.keys(systemData[0]).length; i++){
+              //   const txCur = await tx(writeContracts.SystemData.createSystem(
+              //     systemData[0].hostname[i],
+              //     systemData[0].sy_dist_ly[i],
+              //     systemData[0].st_rad_norm[i],
+              //     systemData[0].st_hex[i],
+              //     systemData[0].pl_rad_norm[i],
+              //     systemData[0].pl_orb_dist[i]
+              //   ));
+              //   await txCur.wait();
+              // }
             } catch (e) {
               console.log("Load System Data failed", e);
             }
@@ -481,7 +490,7 @@ function App(props) {
             <Address value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address} />
           </div>
           <Contract
-            name="SystemData"
+            name="CalculateLayout"
             price={price}
             signer={userSigner}
             provider={localProvider}
@@ -490,7 +499,7 @@ function App(props) {
             contractConfig={contractConfig}
           />
           <Contract
-            name="CalculateLayout"
+            name="SystemData"
             price={price}
             signer={userSigner}
             provider={localProvider}

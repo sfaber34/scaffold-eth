@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import './Trigonometry.sol';
 import './Structs.sol';
 import 'hardhat/console.sol';
+
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
   function getSystem(uint256) external view returns (Structs.System memory system);
@@ -12,7 +13,7 @@ interface ISystemData {
 library ReturnSvg {
 
   using Trigonometry for uint256;
-
+  
   function calcPlanetXY(uint256 rDist, uint256 rads) internal view returns (int256, int256) {
     int256 rDist = int256(rDist);
     int256 cx = (rDist * rads.cos() + 500e18) / 1e18;
