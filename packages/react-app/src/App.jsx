@@ -34,6 +34,7 @@ import { useStaticJsonRPC } from "./hooks";
 import { create } from 'ipfs-http-client';
 // import { systemData } from "./systemData";
 
+var systemI = 0;
 export const systemData = [
   {
     "hostname": {
@@ -384,47 +385,26 @@ function App(props) {
           <p>All Ether from sales goes to public goods!!</p>
         </div>
 
-        <Button
-          type="primary"
-          onClick={async () => {
-            // const priceRightNow = await readContracts.YourCollectible.price();
-            const systemI = await readContracts.SystemData.systemI();
-            try {
-                const txCur = await tx(writeContracts.SystemData.createSystem(
-                  systemData[0].hostname[systemI],
-                  systemData[0].sy_dist_ly[systemI],
-                  systemData[0].st_rad_norm[systemI],
-                  systemData[0].st_hex[systemI],
-                  systemData[0].pl_rad_norm[systemI]
-                  // systemData[0].pl_orb_dist[systemI]
-                ));
-                await txCur.wait();
-              // for(let i = 0; i < Object.keys(systemData[0]).length; i++){
-              //   const txCur = await tx(writeContracts.SystemData.createSystem(
-              //     systemData[0].hostname[i],
-              //     systemData[0].sy_dist_ly[i],
-              //     systemData[0].st_rad_norm[i],
-              //     systemData[0].st_hex[i],
-              //     systemData[0].pl_rad_norm[i],
-              //     systemData[0].pl_orb_dist[i]
-              //   ));
-              //   await txCur.wait();
-              // }
-            } catch (e) {
-              console.log("Load System Data failed", e);
-            }
-          }}
-        >
-          Load System Data
-        </Button>
         <div style={{height: "10px"}}></div>
+        
         <Button
           type="primary"
           onClick={async () => {
             const priceRightNow = await readContracts.YourCollectible.price();
+            // const systemI = await readContracts.SystemData.systemI();
             try {
+              const txLoad = await tx(writeContracts.SystemData.createSystem(
+                systemData[0].hostname[systemI],
+                systemData[0].sy_dist_ly[systemI],
+                systemData[0].st_rad_norm[systemI],
+                systemData[0].st_hex[systemI],
+                systemData[0].pl_rad_norm[systemI]
+                // systemData[0].pl_orb_dist[systemI]
+              ));
+              await txLoad.wait();
               const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));
               await txCur.wait();
+              systemI++;
             } catch (e) {
               console.log("mint failed", e);
             }

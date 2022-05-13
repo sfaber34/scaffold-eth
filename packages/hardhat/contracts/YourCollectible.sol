@@ -41,20 +41,9 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   mapping (uint256 => uint256) public mouthLength;
 
   address public systemDataAddress;
-  constructor(address _systemDataAddress) public ERC721("OptimisticLoogies", "OPLOOG") {
+  constructor(address _systemDataAddress) ERC721("OptimisticLoogies", "OPLOOG") {
     systemDataAddress = _systemDataAddress;
-  }
-
-  uint8 public stRadiusTest;
-  uint8[] public planetRadiusTest;
-  uint16 public minRadDist;
-
-  function calcRadDist(uint256 id) public {
-    Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
-    Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
-
-    minRadDist = system.radius + 50;
-  }  
+  } 
 
   function mintItem()
       public
@@ -65,8 +54,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       require(msg.value >= price, "NOT ENOUGH");
 
       price = (price * curve) / 1000;
-
-      _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
       _mint(msg.sender, id);
@@ -79,6 +66,10 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       (bool success, ) = recipient.call{value: msg.value}("");
       require(success, "could not send");
+
+      console.log(id);
+
+      _tokenIds.increment();
       
       return id;
   }
