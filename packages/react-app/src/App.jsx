@@ -38,7 +38,7 @@ var systemI = 0;
 export const systemData = [
   {
     "hostname": {
-      "0": "tau Cet",
+      "0": "TEST System",
       "1": "TRAPPIST-1",
       "2": "rho CrB",
       "3": "nu Oph",
@@ -90,7 +90,7 @@ export const systemData = [
       "10": "ffecdd"
     },
     "pl_rad_norm": {
-      "0": [7, 7, 5, 5],
+      "0": [10, 35],
       "1": [5, 5, 3, 4, 4, 5, 3],
       "2": [35, 16, 22],
       "3": [31, 31],
@@ -102,18 +102,18 @@ export const systemData = [
       "9": [32, 34],
       "10": [22, 36]
     },
-    "pl_orb_dist": {
-      "0": [247, 473, 133, 164],
-      "1": [125, 155, 200, 249, 313, 372, 477],
-      "2": [321, 464, 464],
-      "3": [272, 449],
-      "4": [340, 447],
-      "5": [441, 249],
-      "6": [291, 370, 476],
-      "7": [91, 136, 471],
-      "8": [129, 446, 137, 121],
-      "9": [134, 446],
-      "10": [253, 444]
+    "pl_color": {
+      "0": ["82592e", "2d8546"],
+      "1": ["2d8546", "2e6982", "82592e", "432e82", "2e7582", "824b2e", "5e822e"],
+      "2": ["2d8546", "2e6982", "82592e"],
+      "3": ["2d8546", "2e6982"],
+      "4": ["2d8546", "2e6982"],
+      "5": ["2d8546", "2e6982"],
+      "6": ["2d8546", "2e6982", "82592e"],
+      "7": ["2d8546", "2e6982", "82592e"],
+      "8": ["2d8546", "2e6982", "82592e", "432e82"],
+      "9": ["2d8546", "2e6982"],
+      "10": ["2d8546", "2e6982"]
     }
   }
 ];
@@ -398,8 +398,8 @@ function App(props) {
                 systemData[0].sy_dist_ly[systemI],
                 systemData[0].st_rad_norm[systemI],
                 systemData[0].st_hex[systemI],
-                systemData[0].pl_rad_norm[systemI]
-                // systemData[0].pl_orb_dist[systemI]
+                systemData[0].pl_rad_norm[systemI],
+                systemData[0].pl_color[systemI]
               ));
               await txLoad.wait();
               const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));

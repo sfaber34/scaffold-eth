@@ -41,7 +41,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   mapping (uint256 => uint256) public mouthLength;
 
   address public systemDataAddress;
-  constructor(address _systemDataAddress) ERC721("OptimisticLoogies", "OPLOOG") {
+  // constructor(address _systemDataAddress) ERC721("OptimisticLoogies", "OPLOOG") {
+    constructor(address _systemDataAddress) ERC721("Exos", "EXOS") {
     systemDataAddress = _systemDataAddress;
   } 
 
@@ -58,16 +59,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       uint256 id = _tokenIds.current();
       _mint(msg.sender, id);
 
-      bytes32 predictableRandom = keccak256(abi.encodePacked( id, blockhash(block.number-1), msg.sender, address(this) ));
-      color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
-      chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
-      // small chubiness loogies have small mouth
-      mouthLength[id] = 180+((uint256(chubbiness[id]/4)*uint256(uint8(predictableRandom[4])))/255);
-
       (bool success, ) = recipient.call{value: msg.value}("");
       require(success, "could not send");
-
-      console.log(id);
 
       _tokenIds.increment();
       
@@ -79,8 +72,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
       
-      // string memory name = string(abi.encodePacked('System #',id.toString()));
-      string memory description = string(abi.encodePacked('Some stuff about the system'));
+      string memory description = string(abi.encodePacked(system.name , ' is ', uint2str(system.distToSol), ' ly from Sol.'));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return
@@ -94,15 +86,11 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               system.name,
                               '", "description":"',
                               description,
-                              '", "external_url":"https://burnyboys.com/token/',
+                              '", "external_url":"https://foo.com/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "color", "value": "#',
-                              color[id].toColor(),
-                              '"},{"trait_type": "chubbiness", "value": ',
-                              uint2str(chubbiness[id]),
-                              '},{"trait_type": "mouthLength", "value": ',
-                              uint2str(mouthLength[id]),
-                              '}], "owner":"',
+                              '", "attributes": [{"trait_type": "star_color", "value": "',
+                              system.color,
+                              '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
                               'data:image/svg+xml;base64,',

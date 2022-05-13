@@ -6,8 +6,6 @@ import 'hardhat/console.sol';
 
 contract SystemData {
 
-  uint public systemI;
-
   Structs.System[] public systems;
   Structs.Planet[] public planets;
 
@@ -16,7 +14,8 @@ contract SystemData {
       uint16 distToSol,
       uint8 stRadius,
       string memory stColor,
-      uint8[] memory plRadius 
+      uint8[] memory plRadius,
+      string[] memory plColor 
     ) public {
     
     uint16[] memory orbDist = new uint16[] (plRadius.length);
@@ -46,13 +45,12 @@ contract SystemData {
     for(uint8 i=0; i<plRadius.length; i++){
       planets.push(Structs.Planet({
         radius: plRadius[i],
-        orbDist: orbDist[i]
+        orbDist: orbDist[i],
+        color: plColor[i]
       }));
       
       systems[systems.length-1].planets.push(planets.length-1); 
     }
-
-    systemI ++;
   }
 
   function getSystem(uint256 systemId) external view returns(Structs.System memory returnSystem){

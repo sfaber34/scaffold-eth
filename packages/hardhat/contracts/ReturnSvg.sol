@@ -36,15 +36,15 @@ library ReturnSvg {
     Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
 
     uint64[8] memory angles = [0e18, 89759e13, 17951e14, 26927e14, 35903e14, 44879e14, 53855e14, 62831e14];
-    string[7] memory planetColors = ['2d8546', '2e6982', '82592e', '432e82', '2e7582', '824b2e', '5e822e'];
+    // string[7] memory planetColors = ['2d8546', '2e6982', '82592e', '432e82', '2e7582', '824b2e', '5e822e'];
 
     bytes32 randomish = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
 
-    uint64[8] memory anglesRandom;
-    for (uint i=0; i<anglesRandom.length; i++) {
-      uint randAnglesI = uint(keccak256(abi.encodePacked( randomish, i ))) % 7;
-      anglesRandom[i] = angles[randAnglesI];
-    }
+    // uint64[8] memory anglesRandom;
+    // for (uint i=0; i<anglesRandom.length; i++) {
+    //   uint randAnglesI = uint(keccak256(abi.encodePacked( randomish, i ))) % 7;
+    //   anglesRandom[i] = angles[randAnglesI];
+    // }
     
     // Star radial gradient
     string memory render = string(abi.encodePacked(
@@ -60,9 +60,7 @@ library ReturnSvg {
 
     // Planet linear gradients
     for (uint i=0; i<planets.length; i++) {
-      // uint randColorsI = uint(keccak256(abi.encodePacked( randomish, i ))) % 6;
-
-      (int256 gradX1, int256 gradY1, int256 gradX2, int256 gradY2) = calcPlanetGradAngle(uint256(anglesRandom[i]));
+      (int256 gradX1, int256 gradY1, int256 gradX2, int256 gradY2) = calcPlanetGradAngle(uint256(angles[i]));
       
       render = string(abi.encodePacked(
         render,
@@ -82,7 +80,8 @@ library ReturnSvg {
           '25',
           '%" stop-color="#000000" stop-opacity="1" />',
           '<stop offset="100%" stop-color="#',
-          planetColors[i],
+          // planetColors[i],
+          planets[i].color,
           '" stop-opacity="1" />',
         '</linearGradient>'
       ));
@@ -98,6 +97,12 @@ library ReturnSvg {
       uint xRand = uint(keccak256(abi.encodePacked( randomish, i ))) % 1000;
       uint yRand = uint(keccak256(abi.encodePacked( randomish, xRand ))) % 1000;
       uint opacityRand = uint(keccak256(abi.encodePacked( randomish, yRand ))) % 25 + 25;
+
+      // bytes32 predictableRandom = keccak256(abi.encodePacked( id, blockhash(block.number-1), msg.sender, address(this) ));
+      // color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
+      // chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
+      // small chubiness loogies have small mouth
+      // mouthLength[id] = 180+((uint256(chubbiness[id]/4)*uint256(uint8(predictableRandom[4])))/255);
 
       render = string(abi.encodePacked(
         render,
@@ -121,7 +126,7 @@ library ReturnSvg {
 
     // Planets
     for (uint i=0; i<planets.length; i++) {
-      (int256 cx, int256 cy) = calcPlanetXY(planets[i].orbDist, uint256(anglesRandom[i]));
+      (int256 cx, int256 cy) = calcPlanetXY(planets[i].orbDist, uint256(angles[i]));
       
       uint16 orbTime = planets[i].orbDist / 14;
 

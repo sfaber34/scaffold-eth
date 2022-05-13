@@ -6,6 +6,7 @@ library Structs {
   struct Planet {
     uint8 radius;
     uint16 orbDist;
+    string color;
   }
 
   struct System {
