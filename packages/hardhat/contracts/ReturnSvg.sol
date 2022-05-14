@@ -88,16 +88,18 @@ library ReturnSvg {
     ));
 
     // Background Star Field
-    for (uint i=0; i<60; i++) {
-      uint xRand = uint(keccak256(abi.encodePacked( randomish, i ))) % 1000;
-      uint yRand = uint(keccak256(abi.encodePacked( randomish, xRand ))) % 1000;
-      uint opacityRand = uint(keccak256(abi.encodePacked( randomish, yRand ))) % 25 + 25;
+    bytes32 predictableRandom;
+    uint8 k;
+    for (uint i=0; i<100; i++) {      
+      if (i % 28 == 0){ 
+        k=0;
+        predictableRandom = keccak256(abi.encodePacked( msg.sender, i ));
+      }
 
-      // bytes32 predictableRandom = keccak256(abi.encodePacked( id, blockhash(block.number-1), msg.sender, address(this) ));
-      // color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
-      // chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
-      // small chubiness loogies have small mouth
-      // mouthLength[id] = 180+((uint256(chubbiness[id]/4)*uint256(uint8(predictableRandom[4])))/255);
+      uint16 xRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+1]) >> 8 )) % 1000;
+      uint16 yRand = uint16(bytes2(predictableRandom[k+2]) | ( bytes2(predictableRandom[k+3]) >> 8 )) % 1000;
+      uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 25 + 25;
+      k++;
 
       render = string(abi.encodePacked(
         render,
@@ -152,7 +154,7 @@ library ReturnSvg {
           '" r="',
           uint2str(thisPlanet.radius),
           '" style="fill:url(#',
-          '0',
+          uint2str(i),
           ');" filter="url(#smear)">'
       ));
 

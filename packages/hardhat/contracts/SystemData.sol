@@ -34,7 +34,7 @@ contract SystemData {
     for (uint i=0; i<plRadius.length; i++) {
       plDiamSum += plRadius[i] * 2;
     }
-
+    
     orbGap = (500 - stRadius - plDiamSum) / uint16(plRadius.length);
     
     orbDist[0] = stRadius + plRadius[0] + orbGap;

@@ -39,21 +39,48 @@ contract CalculateLayout {
   uint16 public minOrbDist;
   uint16[] public orbDist;
 
-  function calcOrbDist(uint256 id) public {
-    Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
-    Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+  bytes32 public predictableRandom;
+  bytes2 public random1Bytes;
+  bytes2 public random2Bytes;
+  uint16 public random1Uint;
+  uint16 public random2Uint;
+  uint16 public random3Uint;
 
-    orbDist = new uint16[] (planets.length);
-    orbDist[0] = system.radius + planets[0].radius * 2 + 50;
-    
-    console.log(orbDist[0]);
+    function initializeRandom() public {
+      predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
+    }
+  
+  function testRandom(uint8 offset) public {
+    random1Uint = uint16(bytes2(predictableRandom[offset]) | ( bytes2(predictableRandom[offset+1]) >> 8 )) % 1000;
+    random2Uint = uint16(bytes2(predictableRandom[offset+2]) | ( bytes2(predictableRandom[offset+3]) >> 8 )) % 1000;
+    random3Uint = uint16(bytes2(predictableRandom[offset]) | ( bytes2(predictableRandom[offset+2]) >> 8 )) % 1000;
 
-    for (uint i=1; i<planets.length; i++) {
-      orbDist[i] = orbDist[i-1] + planets[i].radius * 2;
-      console.log(i);
-      console.log(orbDist[i]);
+    // random1Uint = uint16(random1Bytes);
+    // random2Uint = uint16(random2Bytes);
+    // randomOut = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
+  }
+
+  function testMod() public {
+    for (uint i=0; i<60; i++) {
+      console.log(i % 28);
     }  
-  } 
+  }
+  
+  // function calcOrbDist(uint256 id) public {
+  //   Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
+  //   Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+
+  //   orbDist = new uint16[] (planets.length);
+  //   orbDist[0] = system.radius + planets[0].radius * 2 + 50;
+    
+  //   console.log(orbDist[0]);
+
+  //   for (uint i=1; i<planets.length; i++) {
+  //     orbDist[i] = orbDist[i-1] + planets[i].radius * 2;
+  //     console.log(i);
+  //     console.log(orbDist[i]);
+  //   }  
+  // } 
 
   // function calcStarColor(int256 starTemp) public returns (int256) {
   //   int256 red;
@@ -101,6 +128,15 @@ contract CalculateLayout {
     }
 
     return maxNumber;
+  }
+
+  function bytesToUint(bytes memory b) internal pure returns (uint256){
+    uint256 number;
+    for(uint i=0;i<b.length;i++){
+        number = number + uint(uint8(b[i]))*(2**(8*(b.length-(i+1))));
+    }
+    
+    return number;
   }
 
 }
