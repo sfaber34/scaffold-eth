@@ -5,6 +5,11 @@ import './Trigonometry.sol';
 import './Structs.sol';
 import 'hardhat/console.sol';
 
+// Start Here: Get planet radial gradient to use some variation of main planet color.
+// Change spin time based on orbit distance 
+// Fix background star field randomness
+// Fix orbit gap. It's slightly too much for test system
+
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
   function getSystem(uint256) external view returns (Structs.System memory system);
@@ -14,12 +19,12 @@ library ReturnSvg {
 
   using Trigonometry for uint256;
   
-  function calcPlanetXY(uint256 rDist, uint256 rads) internal view returns (int256, int256) {
+  function calcPlanetXY(uint256 rDist, uint256 rads) internal view returns (uint256, uint256) {
     int256 rDist = int256(rDist);
     int256 cx = (rDist * rads.cos() + 500e18) / 1e18;
     int256 cy = (rDist * rads.sin() + 500e18) / 1e18;
 
-    return (cx, cy);
+    return (uint256(cx), uint256(cy));
   }
 
   function calcPlanetGradAngle(uint256 rads) internal view returns (int256, int256, int256, int256) {
@@ -35,16 +40,11 @@ library ReturnSvg {
     Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
     Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
 
-    uint64[8] memory angles = [0e18, 89759e13, 17951e14, 26927e14, 35903e14, 44879e14, 53855e14, 62831e14];
-    // string[7] memory planetColors = ['2d8546', '2e6982', '82592e', '432e82', '2e7582', '824b2e', '5e822e'];
+    // uint64[8] memory angles = [0e18, 89759e13, 17951e14, 26927e14, 35903e14, 44879e14, 53855e14, 62831e14];
+    uint64[8] memory angles = [0e18, 44879e14, 89759e13, 26927e14, 62831e14, 35903e14, 17951e14, 53855e14];
 
-    bytes32 randomish = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
-
-    // uint64[8] memory anglesRandom;
-    // for (uint i=0; i<anglesRandom.length; i++) {
-    //   uint randAnglesI = uint(keccak256(abi.encodePacked( randomish, i ))) % 7;
-    //   anglesRandom[i] = angles[randAnglesI];
-    // }
+    bytes32 randomish = keccak256(abi.encodePacked( address(this) ));
+    // bytes32 randomishB = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
     
     // Star radial gradient
     string memory render = string(abi.encodePacked(
@@ -60,35 +60,30 @@ library ReturnSvg {
 
     // Planet linear gradients
     for (uint i=0; i<planets.length; i++) {
-      (int256 gradX1, int256 gradY1, int256 gradX2, int256 gradY2) = calcPlanetGradAngle(uint256(angles[i]));
-      
       render = string(abi.encodePacked(
         render,
-        '<linearGradient id="',
+        '<radialGradient id="',
         uint2str(i),
-        '" x1="',
-        uint2str(uint256(gradX1)),
-        '%" y1="',
-        uint2str(uint256(gradY1)),
-        '%" x2="',
-        uint2str(uint256(gradX2)),
-        '%" y2="',
-        uint2str(uint256(gradY2)),
-        '%" spreadMethod="pad">',
-          '<stop offset="',
-          // uint2str(planets[i].orbDist / 10), // Stack too deep error. Want something like this to make further planets darker
-          '25',
-          '%" stop-color="#000000" stop-opacity="1" />',
-          '<stop offset="100%" stop-color="#',
-          // planetColors[i],
-          planets[i].color,
-          '" stop-opacity="1" />',
-        '</linearGradient>'
+        '" r="50%">',
+          '<stop offset="15%" stop-color="#ffffff"/>',
+          '<stop offset="65%" stop-color="hsl(250, 73%, 40%)"/>',
+          '<stop offset="95%" stop-color="hsl(250, 73%, 20%)"/>',
+        '</radialGradient>'
       ));
     }
 
     render = string(abi.encodePacked(
       render,
+      '<filter id="smear" x="-50%" y="-50%" width="200%" height="200%">',
+        '<feTurbulence baseFrequency=".08" numOctaves="10" result="lol" />',
+        '<feDisplacementMap in2="turbulence" in="SourceGraphic" scale="20" xChannelSelector="R" yChannelSelector="G" />',
+        '<feComposite operator="in" in2="SourceGraphic" />',
+      '</filter>',
+      '<linearGradient id="shadow" x1="100%" y1="0%" x2="0%" y2="0%" spreadMethod="pad">',
+        '<stop offset="30%" stop-color="#000000" stop-opacity="1" />',
+        '<stop offset="40%" stop-color="#000000" stop-opacity=".9" />',
+        '<stop offset="60%" stop-color="#000000" stop-opacity="0" />',
+      '</linearGradient>',
       '</defs>'
     ));
 
@@ -126,25 +121,69 @@ library ReturnSvg {
 
     // Planets
     for (uint i=0; i<planets.length; i++) {
-      (int256 cx, int256 cy) = calcPlanetXY(planets[i].orbDist, uint256(angles[i]));
-      
-      uint16 orbTime = planets[i].orbDist / 14;
+      Structs.Planet memory thisPlanet = planets[i];
 
+      // (string memory cx, string memory cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
+      (uint256 cx, uint256 cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
+      
+      uint16 orbTime = thisPlanet.orbDist / 14;
+      uint256 rotate = uint256(angles[i]) * 180 / Trigonometry.PI;
+
+      
       render = string(abi.encodePacked(
         render,
-        '<circle cx="',
-        uint2str(uint256(cx)),
-        '" cy="',
-        uint2str(uint256(cy)),
-        '" r="',
-        uint2str(planets[i].radius),
-        '" style="fill:url(#',
-        uint2str(i),
-        ');">',
+        '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
           uint2str(orbTime),
           's" repeatCount="indefinite" additive="sum" />',
-        '</circle>'
+          '<circle cx="',
+          uint2str(cx),
+          '" cy="',
+          uint2str(cy),
+          '" r="',
+          uint2str(thisPlanet.radius),
+          '" fill="#',
+          thisPlanet.color,
+          '"></circle>',
+          '<circle cx="',
+          uint2str(cx),
+          '" cy="',
+          uint2str(cy),
+          '" r="',
+          uint2str(thisPlanet.radius),
+          '" style="fill:url(#',
+          '0',
+          ');" filter="url(#smear)">'
+      ));
+
+      render = string(abi.encodePacked(
+        render,
+            '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 ',
+            uint2str(cx),
+            ' ',
+            uint2str(cy),
+            '" to="360 ',
+            uint2str(cx),
+            ' ',
+            uint2str(cy),
+            '" begin="0s" dur="',
+            '2',
+            's" repeatCount="indefinite" additive="sum" />',
+          '</circle>',
+          '<circle cx="',
+          uint2str(cx),
+          '" cy="',
+          uint2str(cy),
+          '" r="',
+          uint2str(thisPlanet.radius + 2),
+          '" style="fill:url(#shadow);" transform="rotate(',
+          uint2str(rotate),
+          ', ',
+          uint2str(cx),
+          ', ',
+          uint2str(cy),
+          ')"></circle>',
+        '</g>'
       ));
     }
 
