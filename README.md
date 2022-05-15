@@ -112,8 +112,8 @@ Much of the code in YourCollectible.sol is the same as Optimistic Loogies (some 
 - **Trigonometry.sol** (https://github.com/mds1/solidity-trigonometry) isn't being imported correctly. Works but can't be smart.
 - There's currently no checks to make sure that stars and planets can all fit in frame. I'm sure things will get weird if the sum of the star radius and planet diameters > 500 px.
 - Rendering the background star field (**ReturnSvg.sol:75-85**) really slows down the app. NFTs look better with more background stars but currently only 50 are rendered.
--**uint2str()** is in multiple contracts.
--???
+- **uint2str()** is in multiple contracts.
+- I'm sure a bunch of other stuff...
 
 # 📚 Documentation
 
