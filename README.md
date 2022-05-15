@@ -8,9 +8,7 @@ This project is a fork of Optimistic Loogies
 https://optimistic.loogies.io/
 https://github.com/scaffold-eth/scaffold-eth/tree/optimistic-loogies-master
 
-It's a hack job - definintly not coded in a very efficient way and the method of pulling system attributes at mint could easily be gamed.
-
-BUT it draws some spinny solar system NFTs. Hopefully it's a jumping off point for something cooler.
+It's a hack job - definitely not coded in a very efficient way and the method of pulling system attributes at mint could easily be gamed **BUT** it draws some spinny solar system NFTs. Hopefully it's a jumping off point for something cooler.
 
 
 # 🏄‍♂️ Quick Start
@@ -66,7 +64,7 @@ yarn deploy
 
 ## Introduction
 
-This branch renders animated solar system svg NFTs based on provided details about the system's star and planets.
+This branch renders animated solar system SVG NFTs based on provided details about the system's star and planets.
 
 
 **Structs.sol** contains struct definitions used to hold system attributes:
@@ -111,9 +109,11 @@ Much of the code in YourCollectible.sol is the same as Optimistic Loogies (some 
 ## Known Issues / Wants
 
 - **Planet.colorB**, **Planet.colorC** don't necessarily need to be specified. Planets still look ok if colorB/colorC are just darker shades of colorA which could be done programmatically.
-- **Trigonometry.sol** (https://github.com/mds1/solidity-trigonometry) isn't being imported "correctly". Works but can't be smart.
+- **Trigonometry.sol** (https://github.com/mds1/solidity-trigonometry) isn't being imported correctly. Works but can't be smart.
 - There's currently no checks to make sure that stars and planets can all fit in frame. I'm sure things will get weird if the sum of the star radius and planet diameters > 500 px.
 - Rendering the background star field (**ReturnSvg.sol:75-85**) really slows down the app. NFTs look better with more background stars but currently only 50 are rendered.
+-**uint2str()** is in multiple contracts.
+-???
 
 # 📚 Documentation
 
