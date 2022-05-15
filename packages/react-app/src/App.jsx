@@ -29,15 +29,16 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { YourLoogies, Loogies } from "./views";
+import { YourExos, Exos } from "./views";
 import { useStaticJsonRPC } from "./hooks";
-import { create } from 'ipfs-http-client';
 
 var systemI = 0;
-export const systemData = [
+
+// Data for rendering example systems. See Structs.sol for a bit more on variable descriptions.
+const systemData = [
   {
-    "hostname": {
-      "0": "TEST System",
+    "system_name": {
+      "0": "Tau Cet",
       "1": "TRAPPIST-1",
       "2": "rho CrB",
       "3": "nu Oph",
@@ -49,7 +50,7 @@ export const systemData = [
       "9": "WASP-41",
       "10": "WASP-148"
     },
-    "sy_dist_ly": {
+    "system_dist": {
       "0": 12,
       "1": 41,
       "2": 57,
@@ -62,7 +63,7 @@ export const systemData = [
       "9": 536,
       "10": 808
     },
-    "st_rad_norm": {
+    "star_radius": {
       "0": 71,
       "1": 20,
       "2": 105,
@@ -75,7 +76,7 @@ export const systemData = [
       "9": 71,
       "10": 84
     },
-    "st_hex": {
+    "star_color": {
       "0": "ffe9d8",
       "1": "ffa14c",
       "2": "ffefe2",
@@ -88,7 +89,7 @@ export const systemData = [
       "9": "ffeedf",
       "10": "ffecdd"
     },
-    "pl_rad_norm": {
+    "planet_radius": {
       "0": [35, 10],
       "1": [15, 15, 10, 10, 10, 15, 20],
       "2": [35, 16, 22],
@@ -101,7 +102,7 @@ export const systemData = [
       "9": [32, 34],
       "10": [22, 36]
     },
-    "pl_color_A": {
+    "planet_color_A": {
       "0": ["246cab", "99632b"], 
       "1": ["2d8546", "2e6982", "82592e", "432e82", "2e7582", "824b2e", "5e822e"],
       "2": ["9c271a", "10700c", "82592e"],
@@ -114,7 +115,7 @@ export const systemData = [
       "9": ["2d8546", "2e6982"],
       "10": ["2d8546", "2e6982"]
     },
-    "pl_color_B": {
+    "planet_color_B": {
       "0": ["1d507d", "784b1d"],
       "1": ["432e82", "2e7582", "824b2e", "5e822e", "2d8546", "2e6982", "82592e"],
       "2": ["823a10", "61732c", "82592e"],
@@ -127,7 +128,7 @@ export const systemData = [
       "9": ["2d8546", "2e6982"],
       "10": ["82592e", "2e6982"]
     },
-    "pl_color_C": {
+    "planet_color_C": {
       "0": ["0f3759", "59330c"],
       "1": ["5e822e", "2d8546", "2e6982", "82592e", "432e82", "2e7582", "824b2e"],
       "2": ["5c1007", "2e6982", "2d8546"],
@@ -391,8 +392,8 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="/yourLoogies">
-          <Link to="/yourLoogies">Your Optimistic Loogies</Link>
+        <Menu.Item key="/yourExos">
+          <Link to="/yourExos">Your Exos</Link>
         </Menu.Item>
         <Menu.Item key="/howto">
           <Link to="/howto">How To Use Optimistic Network</Link>
@@ -405,9 +406,8 @@ function App(props) {
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
         <div style={{ fontSize: 16 }}>
           <p>
-            Only <strong>3728 Optimistic Loogies</strong> available (2X the supply of the <a href="https://loogies.io" target="_blank">Original Ethereum Mainnet Loogies</a>) on a price curve <strong>increasing 0.2%</strong> with each new mint.
+            Mint will load a system's data from the systemData JSON object in app.jsx and render an NFT.
           </p>
-          <p>All Ether from sales goes to public goods!!</p>
         </div>
 
         <div style={{height: "10px"}}></div>
@@ -419,14 +419,14 @@ function App(props) {
             // const systemI = await readContracts.SystemData.systemI();
             try {
               const txLoad = await tx(writeContracts.SystemData.createSystem(
-                systemData[0].hostname[systemI],
-                systemData[0].sy_dist_ly[systemI],
-                systemData[0].st_rad_norm[systemI],
-                systemData[0].st_hex[systemI],
-                systemData[0].pl_rad_norm[systemI],
-                systemData[0].pl_color_A[systemI],
-                systemData[0].pl_color_B[systemI],
-                systemData[0].pl_color_C[systemI]
+                systemData[0].system_name[systemI],
+                systemData[0].system_dist[systemI],
+                systemData[0].star_radius[systemI],
+                systemData[0].star_color[systemI],
+                systemData[0].planet_radius[systemI],
+                systemData[0].planet_color_A[systemI],
+                systemData[0].planet_color_B[systemI],
+                systemData[0].planet_color_C[systemI]
               ));
               await txLoad.wait();
               const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));
@@ -447,7 +447,7 @@ function App(props) {
 
       <Switch>
         <Route exact path="/">
-          <Loogies
+          <Exos
             readContracts={readContracts}
             mainnetProvider={mainnetProvider}
             blockExplorer={blockExplorer}
@@ -455,8 +455,8 @@ function App(props) {
             DEBUG={DEBUG}
           />
         </Route>
-        <Route exact path="/yourLoogies">
-          <YourLoogies
+        <Route exact path="/yourExos">
+          <YourExos
             readContracts={readContracts}
             writeContracts={writeContracts}
             priceToMint={priceToMint}
@@ -496,15 +496,6 @@ function App(props) {
           <div style={{ padding: 32 }}>
             <Address value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address} />
           </div>
-          <Contract
-            name="CalculateLayout"
-            price={price}
-            signer={userSigner}
-            provider={localProvider}
-            address={address}
-            blockExplorer={blockExplorer}
-            contractConfig={contractConfig}
-          />
           <Contract
             name="SystemData"
             price={price}

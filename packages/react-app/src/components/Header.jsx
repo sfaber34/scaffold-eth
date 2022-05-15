@@ -10,7 +10,7 @@ export default function Header() {
         {/* <img src="optimistic-loogie.svg" width="130" height="130" alt="Optimistic Loogie" /> */}
       </div>
       <PageHeader
-        title={<div style={{ marginLeft: 50 }}>Planets?</div>}
+        title={<div style={{ marginLeft: 50 }}>Exos</div>}
         // subTitle="Loogies with a smile :-)"
         style={{ cursor: "pointer" }}
       />

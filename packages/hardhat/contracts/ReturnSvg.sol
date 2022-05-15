@@ -73,18 +73,19 @@ library ReturnSvg {
       '</defs>'
     ));
 
-    // Add background star field. Looks better with more stars but 100 times through this loop is already pretty clunky.
+    // Add background star field. Looks better with more stars but 50 extra svg <circles> is already hard on render/display in app
     bytes32 predictableRandom;
     uint8 k;
-    for (uint i=0; i<100; i++) {      
+    for (uint i=0; i<50; i++) {      
       if (i % 28 == 0){ 
         k=0;
         predictableRandom = keccak256(abi.encodePacked( msg.sender, i ));
       }
 
+      // Get x/y coordinates between 0 - 1000 pixels and an opacity between .15 and .45
       uint16 xRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+1]) >> 8 )) % 1000;
       uint16 yRand = uint16(bytes2(predictableRandom[k+2]) | ( bytes2(predictableRandom[k+3]) >> 8 )) % 1000;
-      uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 25 + 25;
+      uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 30 + 15;
       k++;
 
       render = string(abi.encodePacked(
@@ -93,7 +94,7 @@ library ReturnSvg {
         uint2str(xRand),
         '" cy="',
         uint2str(yRand),
-        '" r="1" style="fill: #ffffff; fill-opacity: 0.',
+        '" r="2" style="fill: #ffffff; fill-opacity: 0.',
         uint2str(opacityRand),
         ';"></circle>'
       ));
@@ -115,17 +116,16 @@ library ReturnSvg {
       Structs.Planet memory thisPlanet = planets[i];
 
       (uint256 cx, uint256 cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
-      // 
-      // uint16 orbTime = thisPlanet.orbDist / 14;
+
       // Number of degrees to rotate the planet shadow layer so it's lined up with system star.
       uint256 rotate = uint256(angles[i]) * 180 / Trigonometry.PI;
 
-      
+      // Render is split into 2 to avoid stack overflows 
       render = string(abi.encodePacked(
         render,
         '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
-          uint2str(thisPlanet.orbDist / 14),
+          uint2str(thisPlanet.orbDist / 14), // Rough scaling to make further planets orbit slower
           's" repeatCount="indefinite" additive="sum" />',
           '<circle cx="',
           uint2str(cx),
@@ -158,7 +158,7 @@ library ReturnSvg {
             ' ',
             uint2str(cy),
             '" begin="0s" dur="',
-            '2',
+            '2', // Time to complete planet rotation. Should really scale based on planet radius or something
             's" repeatCount="indefinite" additive="sum" />',
           '</circle>',
           '<circle cx="',

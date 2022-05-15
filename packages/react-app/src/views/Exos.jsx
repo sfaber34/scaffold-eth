@@ -4,11 +4,11 @@ import { Button, Card, List, Spin } from "antd";
 import { Address } from "../components";
 import { ethers } from "ethers";
 
-function Loogies({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBUG }) {
+function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBUG }) {
   const [allLoogies, setAllLoogies] = useState();
   const [page, setPage] = useState(1);
   const [loadingLoogies, setLoadingLoogies] = useState(true);
-  const perPage = 8;
+  const perPage = 4;
 
   useEffect(() => {
     const updateAllLoogies = async () => {
@@ -102,4 +102,4 @@ function Loogies({ readContracts, mainnetProvider, blockExplorer, totalSupply, D
   );
 }
 
-export default Loogies;
+export default Exos;

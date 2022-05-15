@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@prb/math/contracts/PRBMathSD59x18.sol";
 import 'base64-sol/base64.sol';
 import './HexStrings.sol';
 import './ToColor.sol';
@@ -23,7 +22,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   using ToColor for bytes3;
   using ReturnSvg for uint256;
   using Trigonometry for uint256;
-  using PRBMathSD59x18 for int256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
@@ -42,6 +40,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     systemDataAddress = _systemDataAddress;
   } 
 
+  // I didn't mess with the price curve here. It's still set up for minting ~2000 Loogies.
   function mintItem()
       public
       payable
@@ -49,7 +48,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   {
       require(_tokenIds.current() < limit, "DONE MINTING");
       require(msg.value >= price, "NOT ENOUGH");
-
+      
       price = (price * curve) / 1000;
 
       uint256 id = _tokenIds.current();
@@ -63,7 +62,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       return id;
   }
   
-  // This needs work. Just hacked it enought to get it drawing svgs.
+  // This needs work. Just hacked it enough to get it drawing svgs.
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 
