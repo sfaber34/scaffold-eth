@@ -1,6 +1,8 @@
-# 🏗 scaffold-eth - OptimisticLoogies
+# 🏗 scaffold-eth - Exos
 
-Loogies with a smile on Optimism network.
+Renders animated SVG NFTs of star systems.
+
+![alt text](https://github.com/sfaber34/scaffold-eth/blob/exos/ExampleExo.png?raw=true)
 
 ![optimisticloogie](https://optimistic.loogies.io/optimistic-loogie.svg)
 
@@ -72,11 +74,6 @@ function renderTokenById(uint256 id) public view returns (string memory)
 
 It returns the relevant SVG that be embedded in other SVG code for rendering.
 
-### Automated with Gitpod
-
-To deploy this project to Gitpod, click this button:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://github.com/scaffold-eth/scaffold-eth/tree/fancy-loogies)
 
 # 📚 Documentation
 
@@ -103,7 +100,7 @@ Documentation, tutorials, challenges, and many more resources, visit: [docs.scaf
 
 Check out all the [active branches](https://github.com/austintgriffith/scaffold-eth/branches/active), [open issues](https://github.com/austintgriffith/scaffold-eth/issues), and join/fund the 🏰 [BuidlGuidl](https://BuidlGuidl.com)!
 
-  
+
  - 🚤  [Follow the full Ethereum Speed Run](https://medium.com/@austin_48503/%EF%B8%8Fethereum-dev-speed-run-bd72bcba6a4c)
 
 
