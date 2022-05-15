@@ -1,20 +1,21 @@
 # 🏗 scaffold-eth - Exos
 
-Renders animated SVG NFTs of star systems.
+Renders animated SVG NFTs of star systems on Optimism. They look something like this but with 100% more spin.
 
-![alt text](https://github.com/sfaber34/scaffold-eth/blob/exos/ExampleExo.png?raw=true)
+![Example Exo NFT](https://github.com/sfaber34/scaffold-eth/blob/exos/ExampleExo.png?raw=true)
 
-![optimisticloogie](https://optimistic.loogies.io/optimistic-loogie.svg)
-
-Demo Video: https://youtu.be/PiwJsoURECg?t=542
-
+This project is a fork of Optimistic Loogies
 https://optimistic.loogies.io/
+https://github.com/scaffold-eth/scaffold-eth/tree/optimistic-loogies-master
+
+It's a hack job - definintly not coded in a very efficient way and the method of pulling system attributes at mint could easily be gamed.
+
+BUT it draws some spinny NFTs. Hopefully it's a jumping off point for something cooler.
+
 
 # 🏄‍♂️ Quick Start
 
 ## Prerequisites
-
-This branch is an extension of [loogie-svg-nft](https://github.com/scaffold-eth/scaffold-eth/tree/loogies-svg-nft) branch (watch its [demo](https://www.youtube.com/watch?v=m0bwE5UelEo) to understand more about it).
 
 [Node](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
@@ -27,13 +28,13 @@ This branch is an extension of [loogie-svg-nft](https://github.com/scaffold-eth/
 > clone/fork 🏗 scaffold-eth optimistic-loogies-master branch:
 
 ```
-git clone -b optimistic-loogies-master https://github.com/scaffold-eth/scaffold-eth.git optimistic-loogies-master
+git clone -b exos https://github.com/sfaber34/scaffold-eth.git exos
 ```
 
 > install and start your 👷‍ Hardhat chain:
 
 ```bash
-cd optimistic-loogies-master
+cd exos
 yarn install
 yarn chain
 ```
@@ -41,14 +42,14 @@ yarn chain
 > in a second terminal window, start your 📱 frontend:
 
 ```bash
-cd optimistic-loogies-master
+cd exos
 yarn start
 ```
 
 > in a third terminal window, 🛰 deploy your contract:
 
 ```bash
-cd optimistic-loogies-master
+cd exos
 yarn deploy
 ```
 
@@ -64,6 +65,39 @@ yarn deploy
 
 
 ## Introduction
+
+This branch renders animated solar system svg NFTs based on attributes pulled from the systemData JSON in App.jsx. Data for 11 example NFTs are included.
+
+Structs.sol contains struct definitions used to hold system attributes:
+
+```
+  struct Planet {
+    uint8 radius; // Planet radius (pixels)
+    uint16 orbDist; // Planet orbit distance; radial distance from star centroid to planet centroid (pixels)
+    string colorA; // Base planet color (hex)
+    string colorB; // Secondary planet color (hex)
+    string colorC; // Tertiary planet color (hex)
+  }
+
+  struct System {
+    string name; // Just used for nft attributes, mainly to draw text in bottom svg corners
+    uint16 distToSol; // Similiar to name. Not used in layout logic or anything
+    uint8 radius; // Star radius (pixels)
+    string color; // Star color (hex)
+    address owner;
+    uint256[] planets; // stores ids of planets in each system
+  }
+```
+system_name and system_dist are just used to render text in the bottom corners of NFTs. star_radius, star_color, planet_radius, planet_color_A, planet_color_B, and planet_color_C are used for layout logic.
+
+The logic for building out star system SVGs for render lives in the ReturnSvg.sol library:
+
+```
+function returnSvg()
+```
+Gets System and Planets structs from SystemData.sol. 
+
+Much of the code in YourCollectible.sol is the same as Optimistic Loogies (some things in there definitely need edits to work with this fork if you want to take it live).
 
 This branch shows how to set up an SVG NFT contract so that other NFTs can use it in their SVG code. This leads to an easy composition of SVG NFTs.
 
