@@ -69,7 +69,7 @@ yarn deploy
 This branch renders animated solar system svg NFTs based on provided details about the system's star and planets.
 
 
-Structs.sol contains struct definitions used to hold system attributes:
+**Structs.sol** contains struct definitions used to hold system attributes:
 
 ```
   struct Planet {
@@ -89,17 +89,17 @@ Structs.sol contains struct definitions used to hold system attributes:
     uint256[] planets; // stores ids of planets in each system
   }
 ```
-System.name and System.distToSol are just used to render text in the bottom corners of NFTs. System.radius, System.color, Planet.radius, Planet.orbDist, Planet.colorA, Planet.colorB, and Planet.colorC are used for layout logic. Please note that Planet.orbDist is calculated and does not need to be provided like other Planet attributes.
+**System.name** and **System.distToSol** are just used to render text in the bottom corners of NFTs. **System.radius**, **System.color**, **Planet.radius**, **Planet.orbDist**, **Planet.colorA**, **Planet.colorB**, and **Planet.colorC** are used for layout logic. Please note that **Planet.orbDist** is calculated and does not need to be provided like other Planet attributes.
 
 
-SystemData.sol has functions for filling/returning System/Planet structs. It also calculates planet orbit distance from star centroid to planet centroid (pixels) based on the order that planets are passed to createSystem(). It makes the orbit gap between planets (roughly) the same. Data used to fill structs is passed from the App.jsx "Mint" button's onClick function.
+**SystemData.sol** has functions for filling/returning System/Planet structs. It also calculates planet orbit distance from star centroid to planet centroid (pixels) based on the order that planets are passed to **createSystem()**. It makes the orbit gap between planets (roughly) the same. Data used to fill structs is passed from the **App.jsx** "Mint" button's onClick function.
 
 
-The logic for building out star system SVGs for render lives in the ReturnSvg.sol library.
+The logic for building out star system SVGs for render lives in the **ReturnSvg.sol** library.
 ```
 function returnSvg()
 ```
-Gets System and Planets structs from SystemData.sol and does a bunch of string(abi.encodePacked()) to build out SVG tags for render.
+Gets System and Planets structs from **SystemData.sol** and does a bunch of string(abi.encodePacked()) to build out SVG tags for render.
 
 Initial planet xy positions are calculated by trig identities in
 ```
