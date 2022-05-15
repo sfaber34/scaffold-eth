@@ -92,7 +92,7 @@ This branch renders animated solar system svg NFTs based on provided details abo
 **System.name** and **System.distToSol** are just used to render text in the bottom corners of NFTs. **System.radius**, **System.color**, **Planet.radius**, **Planet.orbDist**, **Planet.colorA**, **Planet.colorB**, and **Planet.colorC** are used for layout logic. Please note that **Planet.orbDist** is calculated and does not need to be provided like other Planet attributes.
 
 
-**SystemData.sol** has functions for filling/returning System/Planet structs. It also calculates planet orbit distance from star centroid to planet centroid (pixels) based on the order that planets are passed to **createSystem()**. It makes the orbit gap between planets (roughly) the same. Data used to fill structs is passed from the **App.jsx** "Mint" button's onClick function.
+**SystemData.sol** has functions for filling/returning System/Planet structs. It also calculates planet orbit distance from star centroid to planet centroid (pixels) based on the order that planets are passed to **createSystem()**. It makes the orbit gap between planets (roughly) the same. Data used to fill structs is passed from the **App.jsx** "Mint" button's onClick function.<br /><br />
 
 
 The logic for building out star system SVGs for render lives in the **ReturnSvg.sol** library.
