@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import './Structs.sol';
-import 'hardhat/console.sol';
 
 contract SystemData {
 
@@ -15,13 +14,11 @@ contract SystemData {
       uint8 stRadius,
       string memory stColor,
       uint8[] memory plRadius,
-      string[] memory plColor 
+      string[] memory plColorA,
+      string[] memory plColorB,
+      string[] memory plColorC
     ) public {
     
-    uint16[] memory orbDist = new uint16[] (plRadius.length);
-    uint16 plDiamSum;
-    uint16 orbGap;
-
     systems.push(Structs.System({
       name: name,
       distToSol: distToSol,
@@ -31,22 +28,31 @@ contract SystemData {
       planets: new uint256[] (0)
     }));
 
+    // Planet orbit radial distance calculated here. Makes planets ~ evenly distributed.
+    // Probably better to do this in returnSvg() to avoid passing extra data but...
+    uint16[] memory orbDist = new uint16[] (plRadius.length);
+    uint16 plDiamSum;
+    uint16 orbDeadSpace;
+
+    // Calculate how many pixels all planets would span if stacked from the edge of the star outward
     for (uint i=0; i<plRadius.length; i++) {
       plDiamSum += plRadius[i] * 2;
     }
+    // The number of pixels to add between planet orbit distance to spread them out evenly.
+    orbDeadSpace = (500 - stRadius - plDiamSum) / uint16(plRadius.length);
     
-    orbGap = (500 - stRadius - plDiamSum) / uint16(plRadius.length);
-    
-    orbDist[0] = stRadius + plRadius[0] + orbGap;
+    orbDist[0] = stRadius + plRadius[0] + orbDeadSpace;
     for (uint i=1; i<plRadius.length; i++) {
-      orbDist[i] = orbDist[i-1] + plRadius[i] * 2 + orbGap;
+      orbDist[i] = orbDist[i-1] + plRadius[i] * 2 + orbDeadSpace;
     }
 
     for(uint8 i=0; i<plRadius.length; i++){
       planets.push(Structs.Planet({
         radius: plRadius[i],
         orbDist: orbDist[i],
-        color: plColor[i]
+        colorA: plColorA[i],
+        colorB: plColorB[i],
+        colorC: plColorC[i]
       }));
       
       systems[systems.length-1].planets.push(planets.length-1); 

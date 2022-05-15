@@ -11,7 +11,7 @@ import './HexStrings.sol';
 import './ToColor.sol';
 import './ReturnSvg.sol';
 import './Trigonometry.sol';
-import 'hardhat/console.sol';
+
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
@@ -31,17 +31,13 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   address payable public constant recipient =
     payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
-  uint256 public constant limit = 3728;
+  uint256 public constant limit = 11;
   uint256 public constant curve = 1002; // price increase 0,4% with each purchase
   uint256 public price = 0.001 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
 
-  mapping (uint256 => bytes3) public color;
-  mapping (uint256 => uint256) public chubbiness;
-  mapping (uint256 => uint256) public mouthLength;
-
   address public systemDataAddress;
-  // constructor(address _systemDataAddress) ERC721("OptimisticLoogies", "OPLOOG") {
+  
     constructor(address _systemDataAddress) ERC721("Exos", "EXOS") {
     systemDataAddress = _systemDataAddress;
   } 
@@ -67,6 +63,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       return id;
   }
   
+  // This needs work. Just hacked it enought to get it drawing svgs.
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 

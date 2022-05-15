@@ -32,7 +32,6 @@ import { Transactor, Web3ModalSetup } from "./helpers";
 import { YourLoogies, Loogies } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 import { create } from 'ipfs-http-client';
-// import { systemData } from "./systemData";
 
 var systemI = 0;
 export const systemData = [
@@ -90,7 +89,7 @@ export const systemData = [
       "10": "ffecdd"
     },
     "pl_rad_norm": {
-      "0": [10, 35],
+      "0": [35, 10],
       "1": [15, 15, 10, 10, 10, 15, 20],
       "2": [35, 16, 22],
       "3": [31, 31],
@@ -102,10 +101,10 @@ export const systemData = [
       "9": [32, 34],
       "10": [22, 36]
     },
-    "pl_color": {
-      "0": ["82592e", "2d8546"],
+    "pl_color_A": {
+      "0": ["246cab", "99632b"], 
       "1": ["2d8546", "2e6982", "82592e", "432e82", "2e7582", "824b2e", "5e822e"],
-      "2": ["2d8546", "2e6982", "82592e"],
+      "2": ["9c271a", "10700c", "82592e"],
       "3": ["2d8546", "2e6982"],
       "4": ["2d8546", "2e6982"],
       "5": ["2d8546", "2e6982"],
@@ -113,6 +112,32 @@ export const systemData = [
       "7": ["2d8546", "2e6982", "82592e"],
       "8": ["2d8546", "2e6982", "82592e", "432e82"],
       "9": ["2d8546", "2e6982"],
+      "10": ["2d8546", "2e6982"]
+    },
+    "pl_color_B": {
+      "0": ["1d507d", "784b1d"],
+      "1": ["432e82", "2e7582", "824b2e", "5e822e", "2d8546", "2e6982", "82592e"],
+      "2": ["823a10", "61732c", "82592e"],
+      "3": ["2d8546", "2e6982"],
+      "4": ["2d8546", "2e7582"],
+      "5": ["5e822e", "2e6982"],
+      "6": ["2d8546", "2e6982", "82592e"],
+      "7": ["5e822e", "2e6982", "82592e"],
+      "8": ["2d8546", "2e6982", "82592e", "2e6982"],
+      "9": ["2d8546", "2e6982"],
+      "10": ["82592e", "2e6982"]
+    },
+    "pl_color_C": {
+      "0": ["0f3759", "59330c"],
+      "1": ["5e822e", "2d8546", "2e6982", "82592e", "432e82", "2e7582", "824b2e"],
+      "2": ["5c1007", "2e6982", "2d8546"],
+      "3": ["82592e", "432e82"],
+      "4": ["432e82", "82592e"],
+      "5": ["2d8546", "2e6982"],
+      "6": ["2d8546", "2e7582", "82592e"],
+      "7": ["2d8546", "82592e", "2e6982"],
+      "8": ["2d8546", "824b2e", "82592e", "432e82"],
+      "9": ["5e822e", "2e6982"],
       "10": ["2d8546", "2e6982"]
     }
   }
@@ -246,7 +271,7 @@ function App(props) {
 
   const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
   if (DEBUG) console.log("🤗 totalSupply:", totalSupply);
-  const loogiesLeft = 3728 - totalSupply;
+  const loogiesLeft = 11 - totalSupply;
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
@@ -399,7 +424,9 @@ function App(props) {
                 systemData[0].st_rad_norm[systemI],
                 systemData[0].st_hex[systemI],
                 systemData[0].pl_rad_norm[systemI],
-                systemData[0].pl_color[systemI]
+                systemData[0].pl_color_A[systemI],
+                systemData[0].pl_color_B[systemI],
+                systemData[0].pl_color_C[systemI]
               ));
               await txLoad.wait();
               const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));

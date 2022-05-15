@@ -27,15 +27,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     }
   });
 
-  const calculateLayout = await deploy("CalculateLayout", {
-    from: deployer,
-    log: true,
-    args: [systemData.address],
-    libraries: {
-      Structs: structs.address
-    }
-  });
-
   const returnSvg = await deploy("ReturnSvg", {
     from: deployer,
     log: true,

@@ -3,12 +3,6 @@ pragma solidity ^0.8.0;
 
 import './Trigonometry.sol';
 import './Structs.sol';
-import 'hardhat/console.sol';
-
-// Start Here: Get planet radial gradient to use some variation of main planet color.
-// Change spin time based on orbit distance 
-// Fix background star field randomness
-// Fix orbit gap. It's slightly too much for test system
 
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
@@ -19,34 +13,22 @@ library ReturnSvg {
 
   using Trigonometry for uint256;
   
-  function calcPlanetXY(uint256 rDist, uint256 rads) internal view returns (uint256, uint256) {
-    int256 rDist = int256(rDist);
+  function calcPlanetXY(uint256 rDist_, uint256 rads) internal pure returns (uint256, uint256) {
+    int256 rDist = int256(rDist_);
     int256 cx = (rDist * rads.cos() + 500e18) / 1e18;
     int256 cy = (rDist * rads.sin() + 500e18) / 1e18;
 
     return (uint256(cx), uint256(cy));
   }
 
-  function calcPlanetGradAngle(uint256 rads) internal view returns (int256, int256, int256, int256) {
-    int256 gradX1 = (50e18 + rads.cos() * 50) / 1e18; 
-    int256 gradY1 = (50e18 + rads.sin() * 50) / 1e18;
-    int256 gradX2 = (50e18 + (rads + Trigonometry.PI).cos() * 50) / 1e18;  
-    int256 gradY2 = (50e18 + (rads + Trigonometry.PI).sin() * 50) / 1e18; 
-
-    return (gradX1, gradY1, gradX2, gradY2);
-  }   
-
   function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
     Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
     Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
-
-    // uint64[8] memory angles = [0e18, 89759e13, 17951e14, 26927e14, 35903e14, 44879e14, 53855e14, 62831e14];
-    uint64[8] memory angles = [0e18, 44879e14, 89759e13, 26927e14, 62831e14, 35903e14, 17951e14, 53855e14];
-
-    bytes32 randomish = keccak256(abi.encodePacked( address(this) ));
-    // bytes32 randomishB = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
     
-    // Star radial gradient
+    // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
+    uint64[10] memory angles = [0e18, 44879e14, 89759e13, 26927e14, 62831e14, 35903e14, 17951e14, 53855e14, 26927e14, 44879e14];
+    
+    // Add the star radial gradient
     string memory render = string(abi.encodePacked(
       '<defs>',
       '<radialGradient id="star" r="65%" spreadMethod="pad">',
@@ -58,7 +40,7 @@ library ReturnSvg {
       '</radialGradient>'
     ));
 
-    // Planet linear gradients
+    // Add planet radial gradients. These will be scrambled by "smear" filter to give planets texture
     for (uint i=0; i<planets.length; i++) {
       render = string(abi.encodePacked(
         render,
@@ -66,12 +48,16 @@ library ReturnSvg {
         uint2str(i),
         '" r="50%">',
           '<stop offset="15%" stop-color="#ffffff"/>',
-          '<stop offset="65%" stop-color="hsl(250, 73%, 40%)"/>',
-          '<stop offset="95%" stop-color="hsl(250, 73%, 20%)"/>',
+          '<stop offset="65%" stop-color="#',
+          planets[i].colorC,
+          '"/>',
+          '<stop offset="95%" stop-color="#',
+          planets[i].colorB,
+          '"/>',
         '</radialGradient>'
       ));
     }
-
+    // Add filters for scrambling planet radial gradients
     render = string(abi.encodePacked(
       render,
       '<filter id="smear" x="-50%" y="-50%" width="200%" height="200%">',
@@ -87,7 +73,7 @@ library ReturnSvg {
       '</defs>'
     ));
 
-    // Background Star Field
+    // Add background star field. Looks better with more stars but 100 times through this loop is already pretty clunky.
     bytes32 predictableRandom;
     uint8 k;
     for (uint i=0; i<100; i++) {      
@@ -113,7 +99,7 @@ library ReturnSvg {
       ));
     }
 
-    // System Star
+    // Draw the system star
     render = string(abi.encodePacked(
       render,
       '<circle cx="500" cy="500" r="',
@@ -121,14 +107,17 @@ library ReturnSvg {
       '" style="fill:url(#star);" />'
     ));
 
-    // Planets
+    // Draw planets. Each planet has 3 circles; a base with a solid fill, the spinning overlay with radial gradient/smear filter, and
+    // a top circle with linear gradient for the shadow.
+    // The abi.encodePacked() is split to avoid stack overflows
     for (uint i=0; i<planets.length; i++) {
+      // Recast to avoid stack overflows. Not pretty
       Structs.Planet memory thisPlanet = planets[i];
 
-      // (string memory cx, string memory cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
       (uint256 cx, uint256 cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
-      
-      uint16 orbTime = thisPlanet.orbDist / 14;
+      // 
+      // uint16 orbTime = thisPlanet.orbDist / 14;
+      // Number of degrees to rotate the planet shadow layer so it's lined up with system star.
       uint256 rotate = uint256(angles[i]) * 180 / Trigonometry.PI;
 
       
@@ -136,7 +125,7 @@ library ReturnSvg {
         render,
         '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
-          uint2str(orbTime),
+          uint2str(thisPlanet.orbDist / 14),
           's" repeatCount="indefinite" additive="sum" />',
           '<circle cx="',
           uint2str(cx),
@@ -145,7 +134,7 @@ library ReturnSvg {
           '" r="',
           uint2str(thisPlanet.radius),
           '" fill="#',
-          thisPlanet.color,
+          thisPlanet.colorA,
           '"></circle>',
           '<circle cx="',
           uint2str(cx),
@@ -189,7 +178,7 @@ library ReturnSvg {
       ));
     }
 
-    // Text
+    // Add text about system attributes to bottom of svg
     render = string(abi.encodePacked(
       render,
       '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
