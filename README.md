@@ -4,9 +4,7 @@ Renders animated SVG NFTs of star systems on Optimism. They look something like 
 
 ![Example Exo NFT](https://github.com/sfaber34/scaffold-eth/blob/exos/ExampleExo.png?raw=true)
 
-This project is a fork of Optimistic Loogies
-https://optimistic.loogies.io/
-https://github.com/scaffold-eth/scaffold-eth/tree/optimistic-loogies-master
+This project is a fork of Optimistic Loogies https://optimistic.loogies.io/ | https://github.com/scaffold-eth/scaffold-eth/tree/optimistic-loogies-master
 
 It's a hack job - definitely not coded in a very efficient way and the method of pulling system attributes at mint could easily be gamed **BUT** it draws some spinny solar system NFTs. Hopefully it's a jumping off point for something cooler.
 
