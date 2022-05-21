@@ -13,7 +13,6 @@ library Structs {
 
   struct System {
     string name; // Just used for nft attributes, mainly to draw text in bottom svg corners
-    uint16 distToSol; // Similiar to name. Not used in layout logic or anything
     uint16 radius; // Star radius (pixels)
     string color; // Star color (hex)
     address owner;

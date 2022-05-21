@@ -61,7 +61,7 @@ const BufferList = require('bl/BufferList');
 
 
 // 😬 Sorry for all the console logging
-const DEBUG = false;
+const DEBUG = true;
 const NETWORKCHECK = false;
 
 // 🛰 providers

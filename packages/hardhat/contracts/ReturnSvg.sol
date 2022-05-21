@@ -184,10 +184,7 @@ library ReturnSvg {
       render,
       '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
       system.name,
-      '</text>',
-      '<text x="980" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="end">',
-      uint2str(system.distToSol),
-      ' ly to Sol</text>'
+      '</text>'
     ));
 
     return render;

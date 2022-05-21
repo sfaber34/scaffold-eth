@@ -68,7 +68,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
       
-      string memory description = string(abi.encodePacked(system.name , ' is ', uint2str(system.distToSol), ' ly from Sol.'));
+      string memory description = string(abi.encodePacked(system.name));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return

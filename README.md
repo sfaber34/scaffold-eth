@@ -24,13 +24,13 @@ It's a hack job - definitely not coded in a very efficient way and the method of
 > clone/fork 🏗 scaffold-eth optimistic-loogies-master branch:
 
 ```
-git clone -b exos https://github.com/sfaber34/scaffold-eth.git exos
+git clone -b exos-random https://github.com/sfaber34/scaffold-eth.git exos-random
 ```
 
 > install and start your 👷‍ Hardhat chain:
 
 ```bash
-cd exos
+cd exos-random
 yarn install
 yarn chain
 ```
@@ -38,14 +38,14 @@ yarn chain
 > in a second terminal window, start your 📱 frontend:
 
 ```bash
-cd exos
+cd exos-random
 yarn start
 ```
 
 > in a third terminal window, 🛰 deploy your contract:
 
 ```bash
-cd exos
+cd exos-random
 yarn deploy
 ```
 
