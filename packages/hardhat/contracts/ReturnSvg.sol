@@ -7,6 +7,7 @@ import './Structs.sol';
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
   function getSystem(uint256) external view returns (Structs.System memory system);
+  function createSystem() external view;
 }
 
 library ReturnSvg {
@@ -74,31 +75,31 @@ library ReturnSvg {
     ));
 
     // Add background star field. Looks better with more stars but 50 extra svg <circles> is already hard on render/display in app
-    bytes32 predictableRandom;
-    uint8 k;
-    for (uint i=0; i<50; i++) {      
-      if (i % 28 == 0){ 
-        k=0;
-        predictableRandom = keccak256(abi.encodePacked( msg.sender, i ));
-      }
+    // bytes32 predictableRandom;
+    // uint8 k;
+    // for (uint i=0; i<50; i++) {      
+    //   if (i % 28 == 0){ 
+    //     k=0;
+    //     predictableRandom = keccak256(abi.encodePacked( msg.sender, i ));
+    //   }
 
-      // Get x/y coordinates between 0 - 1000 pixels and an opacity between .15 and .45
-      uint16 xRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+1]) >> 8 )) % 1000;
-      uint16 yRand = uint16(bytes2(predictableRandom[k+2]) | ( bytes2(predictableRandom[k+3]) >> 8 )) % 1000;
-      uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 30 + 15;
-      k++;
+    //   // Get x/y coordinates between 0 - 1000 pixels and an opacity between .15 and .45
+    //   uint16 xRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+1]) >> 8 )) % 1000;
+    //   uint16 yRand = uint16(bytes2(predictableRandom[k+2]) | ( bytes2(predictableRandom[k+3]) >> 8 )) % 1000;
+    //   uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 30 + 15;
+    //   k++;
 
-      render = string(abi.encodePacked(
-        render,
-        '<circle cx="',
-        uint2str(xRand),
-        '" cy="',
-        uint2str(yRand),
-        '" r="2" style="fill: #ffffff; fill-opacity: 0.',
-        uint2str(opacityRand),
-        ';"></circle>'
-      ));
-    }
+    //   render = string(abi.encodePacked(
+    //     render,
+    //     '<circle cx="',
+    //     uint2str(xRand),
+    //     '" cy="',
+    //     uint2str(yRand),
+    //     '" r="2" style="fill: #ffffff; fill-opacity: 0.',
+    //     uint2str(opacityRand),
+    //     ';"></circle>'
+    //   ));
+    // }
 
     // Draw the system star
     render = string(abi.encodePacked(

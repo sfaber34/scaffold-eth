@@ -66,9 +66,7 @@
       "**/hardhat-ts/**"
     ]
   },
-  "dependencies": {
-    "ipfs-http-client": "^56.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "husky": "^7.0.2"
   }
