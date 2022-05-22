@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import './Trigonometry.sol';
 import './Structs.sol';
+import './Uint2Str.sol';
 
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
@@ -13,6 +14,8 @@ interface ISystemData {
 library ReturnSvg {
 
   using Trigonometry for uint256;
+  using Uint2Str for uint;
+  using Uint2Str for uint16;
   
   function calcPlanetXY(uint256 rDist_, uint256 rads) internal pure returns (uint256, uint256) {
     int256 rDist = int256(rDist_);
@@ -35,7 +38,7 @@ library ReturnSvg {
       '<radialGradient id="star" r="65%" spreadMethod="pad">',
         '<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />',
         '<stop offset="60%" stop-color="hsl(',
-        uint2str(system.colorH),
+        system.colorH.uint2Str(),
         ',70%,80%)" stop-opacity="1" />',
         '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
       '</radialGradient>'
@@ -46,7 +49,7 @@ library ReturnSvg {
       render = string(abi.encodePacked(
         render,
         '<radialGradient id="',
-        uint2str(i),
+        i.uint2Str(),
         '" r="50%">',
           '<stop offset="15%" stop-color="#ffffff"/>',
           '<stop offset="65%" stop-color="#',
@@ -80,7 +83,7 @@ library ReturnSvg {
     // for (uint i=0; i<50; i++) {      
     //   if (i % 28 == 0){ 
     //     k=0;
-    //     predictableRandom = keccak256(abi.encodePacked( msg.sender, i ));
+    //     predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), block.timestamp, msg.sender, i ));
     //   }
 
     //   // Get x/y coordinates between 0 - 1000 pixels and an opacity between .15 and .45
@@ -92,11 +95,11 @@ library ReturnSvg {
     //   render = string(abi.encodePacked(
     //     render,
     //     '<circle cx="',
-    //     uint2str(xRand),
+    //     xRand.uint2Str(),
     //     '" cy="',
-    //     uint2str(yRand),
+    //     yRand.uint2Str(),
     //     '" r="2" style="fill: #ffffff; fill-opacity: 0.',
-    //     uint2str(opacityRand),
+    //     opacityRand.uint2Str(),
     //     ';"></circle>'
     //   ));
     // }
@@ -105,7 +108,7 @@ library ReturnSvg {
     render = string(abi.encodePacked(
       render,
       '<circle cx="500" cy="500" r="',
-      uint2str(system.radius),
+      system.radius.uint2Str(),
       '" style="fill:url(#star);" />'
     ));
 
@@ -126,54 +129,54 @@ library ReturnSvg {
         render,
         '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
-          uint2str(thisPlanet.orbDist / 14), // Rough scaling to make further planets orbit slower
+          (thisPlanet.orbDist / 14).uint2Str(), // Rough scaling to make further planets orbit slower
           's" repeatCount="indefinite" additive="sum" />',
           '<circle cx="',
-          uint2str(cx),
+          cx.uint2Str(),
           '" cy="',
-          uint2str(cy),
+          cy.uint2Str(),
           '" r="',
-          uint2str(thisPlanet.radius),
+          (thisPlanet.radius).uint2Str(),
           '" fill="#',
           thisPlanet.colorA,
           '"></circle>',
           '<circle cx="',
-          uint2str(cx),
+          cx.uint2Str(),
           '" cy="',
-          uint2str(cy),
+          cy.uint2Str(),
           '" r="',
-          uint2str(thisPlanet.radius),
+          (thisPlanet.radius).uint2Str(),
           '" style="fill:url(#',
-          uint2str(i),
+          i.uint2Str(),
           ');" filter="url(#smear)">'
       ));
 
       render = string(abi.encodePacked(
         render,
             '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 ',
-            uint2str(cx),
+            cx.uint2Str(),
             ' ',
-            uint2str(cy),
+            cy.uint2Str(),
             '" to="360 ',
-            uint2str(cx),
+            cx.uint2Str(),
             ' ',
-            uint2str(cy),
+            cy.uint2Str(),
             '" begin="0s" dur="',
             '2', // Time to complete planet rotation. Should really scale based on planet radius or something
             's" repeatCount="indefinite" additive="sum" />',
           '</circle>',
           '<circle cx="',
-          uint2str(cx),
+          cx.uint2Str(),
           '" cy="',
-          uint2str(cy),
+          cy.uint2Str(),
           '" r="',
-          uint2str(thisPlanet.radius + 2),
+          (thisPlanet.radius + 2).uint2Str(),
           '" style="fill:url(#shadow);" transform="rotate(',
-          uint2str(rotate),
+          rotate.uint2Str(),
           ', ',
-          uint2str(cx),
+          cx.uint2Str(),
           ', ',
-          uint2str(cy),
+          cy.uint2Str(),
           ')"></circle>',
         '</g>'
       ));
@@ -190,25 +193,4 @@ library ReturnSvg {
     return render;
   }
 
-    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-      if (_i == 0) {
-          return "0";
-      }
-      uint j = _i;
-      uint len;
-      while (j != 0) {
-          len++;
-          j /= 10;
-      }
-      bytes memory bstr = new bytes(len);
-      uint k = len;
-      while (_i != 0) {
-          k = k-1;
-          uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-          bytes1 b1 = bytes1(temp);
-          bstr[k] = b1;
-          _i /= 10;
-      }
-      return string(bstr);
-  }
 }

@@ -3,12 +3,14 @@ pragma solidity ^0.8.0;
 
 import './Structs.sol';
 import './ToColor.sol';
+import './Uint2Str.sol';
 
 //Note: Not sure that the method for planet colors is as random as could be (the way i'm doing byte positions)
 
 contract SystemData {
 
   using ToColor for bytes3;
+  using Uint2Str for uint16;
 
   string[23] internal sectors = [
     'Surya', 'Harbinger', 'Chimera', 'Vulcan', 'Aya', 'Odin', 'Osiris', 
@@ -26,9 +28,9 @@ contract SystemData {
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 3 + 2;
 
     string memory systemName = string(abi.encodePacked(
-      sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22],
-      ' ',
-      uint2str(uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % 9999)
+        sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22],
+        ' ',
+        (uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % 9999).uint2Str()
       ));
     
     systems.push(Structs.System({
@@ -112,27 +114,6 @@ contract SystemData {
     
     return returnPlanets;
   }
-
-  function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-    if (_i == 0) {
-        return "0";
-    }
-    uint j = _i;
-    uint len;
-    while (j != 0) {
-        len++;
-        j /= 10;
-    }
-    bytes memory bstr = new bytes(len);
-    uint k = len;
-    while (_i != 0) {
-        k = k-1;
-        uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-        bytes1 b1 = bytes1(temp);
-        bstr[k] = b1;
-        _i /= 10;
-    }
-    return string(bstr);
-  }
+  
 }
 
