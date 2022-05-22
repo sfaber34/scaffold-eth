@@ -33,7 +33,7 @@ function Home({
                     </div>
                   }
                 >
-                  <img src={item.image} alt={"Loogie #" + id} />
+                  <img src={item.image} alt={item.name} />
                   <div>{item.description}</div>
                   <div style={{ marginTop: 20 }}>
                     <AddressInput

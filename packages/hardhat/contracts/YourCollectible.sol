@@ -20,6 +20,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
   using Strings for uint256;
   using Uint2Str for uint16;
+  using Uint2Str for uint256;
   using HexStrings for uint160;
   using ToColor for bytes3;
   using ReturnSvg for uint256;
@@ -72,7 +73,12 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
       
-      string memory description = string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str()));
+      string memory description = string(abi.encodePacked(
+        system.sector,' ', system.sectorI.uint2Str(),
+        ' has ', system.planets.length.uint2Str(),
+        ' planetary bodies.'
+      ));
+
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return

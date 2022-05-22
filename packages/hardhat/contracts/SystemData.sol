@@ -63,7 +63,8 @@ contract SystemData {
       plDiamSum = 0;
       for (uint i=0; i<nPlanets; i++) {
         // Reduce planet radii by common factor. + 5 so that planets with reduced radii aren't touching
-        plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets + 5);
+        // plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets + 5);
+        plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets);
         // Recalculate new planet diameters sum using reduced planet radii
         plDiamSum += plRadii[i] * 2;
       }

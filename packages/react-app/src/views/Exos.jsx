@@ -81,7 +81,7 @@ function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBU
                       </div>
                     }
                   >
-                    <img src={item.image} alt={"Loogie #" + id} width="200" />
+                    <img src={item.image} alt={item.name} width="300" />
                     <div>{item.description}</div>
                     <div>
                       <Address
