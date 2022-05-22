@@ -12,7 +12,8 @@ library Structs {
   }
 
   struct System {
-    string name; // Just used for nft attributes, mainly to draw text in bottom svg corners
+    string sector; // Just used for nft attributes, mainly to draw text in bottom svg corners
+    uint16 sectorI;
     uint16 radius; // Star radius (pixels)
     uint16 colorH;
     address owner;

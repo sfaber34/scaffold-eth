@@ -305,9 +305,7 @@ function App(props) {
           onClick={async () => {
             const priceRightNow = await readContracts.YourCollectible.price();
             try {
-              const txLoad = await tx(writeContracts.SystemData.createSystem());
-              await txLoad.wait();
-              const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 300000 }));
+              const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 3000000 })); // 300000
               await txCur.wait();
             } catch (e) {
               console.log("mint failed", e);

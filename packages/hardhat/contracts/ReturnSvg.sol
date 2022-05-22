@@ -8,7 +8,7 @@ import './Uint2Str.sol';
 interface ISystemData {
   function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
   function getSystem(uint256) external view returns (Structs.System memory system);
-  function createSystem() external view;
+  function createSystem() external;
 }
 
 library ReturnSvg {
@@ -36,10 +36,12 @@ library ReturnSvg {
     string memory render = string(abi.encodePacked(
       '<defs>',
       '<radialGradient id="star" r="65%" spreadMethod="pad">',
-        '<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />',
+        '<stop offset="0%" stop-color="hsl(',
+        system.colorH.uint2Str(),
+        ',65%,95%)" stop-opacity="1" />',
         '<stop offset="60%" stop-color="hsl(',
         system.colorH.uint2Str(),
-        ',70%,80%)" stop-opacity="1" />',
+        ',40%,75%)" stop-opacity="1" />',
         '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
       '</radialGradient>'
     ));
@@ -162,8 +164,8 @@ library ReturnSvg {
             ' ',
             cy.uint2Str(),
             '" begin="0s" dur="',
-            '2', // Time to complete planet rotation. Should really scale based on planet radius or something
-            's" repeatCount="indefinite" additive="sum" />',
+            (thisPlanet.radius * 65 + 500).uint2Str(), // Planet rotation time. Spans 825 to 3100 ms depending on planet radius
+            'ms" repeatCount="indefinite" additive="sum" />',
           '</circle>',
           '<circle cx="',
           cx.uint2Str(),
@@ -186,7 +188,7 @@ library ReturnSvg {
     render = string(abi.encodePacked(
       render,
       '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
-      system.name,
+      string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str())),
       '</text>'
     ));
 

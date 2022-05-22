@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 import './HexStrings.sol';
 import './ToColor.sol';
+import './Uint2Str.sol';
 import './ReturnSvg.sol';
 import './Trigonometry.sol';
 
@@ -18,6 +19,7 @@ import './Trigonometry.sol';
 contract YourCollectible is ERC721Enumerable, Ownable {
 
   using Strings for uint256;
+  using Uint2Str for uint16;
   using HexStrings for uint160;
   using ToColor for bytes3;
   using ReturnSvg for uint256;
@@ -29,7 +31,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   address payable public constant recipient =
     payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
-  uint256 public constant limit = 11;
+  uint256 public constant limit = 64;
   uint256 public constant curve = 1002; // price increase 0,4% with each purchase
   uint256 public price = 0.001 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
@@ -48,6 +50,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   {
       require(_tokenIds.current() < limit, "DONE MINTING");
       require(msg.value >= price, "NOT ENOUGH");
+
+      ISystemData(systemDataAddress).createSystem();
       
       price = (price * curve) / 1000;
 
@@ -68,7 +72,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
       
-      string memory description = string(abi.encodePacked(system.name));
+      string memory description = string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return
@@ -79,7 +83,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              system.name,
+                              string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str())),
                               '", "description":"',
                               description,
                               '", "external_url":"https://foo.com/',

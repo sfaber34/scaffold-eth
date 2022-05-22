@@ -27,14 +27,18 @@ contract SystemData {
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 3 + 2;
 
-    string memory systemName = string(abi.encodePacked(
-        sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22],
-        ' ',
-        (uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % 9999).uint2Str()
-      ));
+    string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22];
+    
+    uint16 sectorI = 1;
+    for (uint i=0; i<systems.length; i++) {
+      if (keccak256(abi.encodePacked(systems[i].sector)) == keccak256(abi.encodePacked(thisSector))){
+        sectorI ++;
+      }
+    }
     
     systems.push(Structs.System({
-      name: systemName,
+      sector: thisSector,
+      sectorI: sectorI,
       radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 100 + 20,
       colorH: uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 5,
       owner: msg.sender,
