@@ -19,6 +19,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
+  const test = await deploy("Test", {
+    from: deployer,
+    log: true,
+    libraries: {
+      Structs: structs.address
+    }
+  });
+
   const systemData = await deploy("SystemData", {
     from: deployer,
     log: true,

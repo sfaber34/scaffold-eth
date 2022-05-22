@@ -85,7 +85,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               '", "external_url":"https://foo.com/',
                               id.toString(),
                               '", "attributes": [{"trait_type": "star_color", "value": "',
-                              system.color,
+                              // system.colorH,
+                              '22'
                               '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',

@@ -4,24 +4,37 @@ pragma solidity ^0.8.0;
 import './Structs.sol';
 import './ToColor.sol';
 
-//START HERE: Copy
+//Note: Not sure that the method for planet colors is as random as could be (the way i'm doing byte positions)
 
 contract SystemData {
 
   using ToColor for bytes3;
+
+  string[23] internal sectors = [
+    'Surya', 'Harbinger', 'Chimera', 'Vulcan', 'Aya', 'Odin', 'Osiris', 
+    'Xi', 'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
+    'Mantis', 'Archer', 'Kappa', 'Ares', 'Eros', 'Icarus', 'Gamma', 
+    'Tycho',  'Vesta',  'Zephyr'
+  ]; 
 
   Structs.System[] public systems;
   Structs.Planet[] public planets;
 
   function createSystem() public {
 
-    bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this) ));
+    bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 3 + 2;
+
+    string memory systemName = string(abi.encodePacked(
+      sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22],
+      ' ',
+      uint2str(uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % 9999)
+      ));
     
     systems.push(Structs.System({
-      name: 'TOI-178',
-      radius: uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 120 + 30,
-      color: 'ffd5b3',
+      name: systemName,
+      radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 100 + 20,
+      colorH: uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 5,
       owner: msg.sender,
       planets: new uint256[] (0)
     }));
@@ -71,6 +84,13 @@ contract SystemData {
         colorB: colorBytesB.toColor(),
         colorC: colorBytesC.toColor()
       }));
+
+      // Make the star a blue dwarf if any planet radii is within 10 px of star radius
+      for (uint i=0; i<nPlanets; i++){
+        if (plRadii[i] > systems[systems.length-1].radius - 10){
+          systems[systems.length-1].colorH = uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 200;
+        }
+      }
       
       systems[systems.length-1].planets.push(planets.length-1); 
     }
@@ -91,6 +111,28 @@ contract SystemData {
     }
     
     return returnPlanets;
+  }
+
+  function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+    if (_i == 0) {
+        return "0";
+    }
+    uint j = _i;
+    uint len;
+    while (j != 0) {
+        len++;
+        j /= 10;
+    }
+    bytes memory bstr = new bytes(len);
+    uint k = len;
+    while (_i != 0) {
+        k = k-1;
+        uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+        bytes1 b1 = bytes1(temp);
+        bstr[k] = b1;
+        _i /= 10;
+    }
+    return string(bstr);
   }
 }
 

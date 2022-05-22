@@ -34,9 +34,9 @@ library ReturnSvg {
       '<defs>',
       '<radialGradient id="star" r="65%" spreadMethod="pad">',
         '<stop offset="0%" stop-color="#ffffff" stop-opacity="1" />',
-        '<stop offset="60%" stop-color="#',
-          system.color,
-        '" stop-opacity="1" />',
+        '<stop offset="60%" stop-color="hsl(',
+        uint2str(system.colorH),
+        ',70%,80%)" stop-opacity="1" />',
         '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
       '</radialGradient>'
     ));

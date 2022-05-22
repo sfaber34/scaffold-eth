@@ -374,6 +374,15 @@ function App(props) {
             <Address value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address} />
           </div>
           <Contract
+            name="Test"
+            price={price}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
+          <Contract
             name="SystemData"
             price={price}
             signer={userSigner}

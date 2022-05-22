@@ -14,7 +14,7 @@ library Structs {
   struct System {
     string name; // Just used for nft attributes, mainly to draw text in bottom svg corners
     uint16 radius; // Star radius (pixels)
-    string color; // Star color (hex)
+    uint16 colorH;
     address owner;
     uint256[] planets; // stores ids of planets in each system
   }
