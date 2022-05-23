@@ -55,8 +55,6 @@ const { ethers } = require("ethers");
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-// const ipfsAPI = require('ipfs-http-client');
-
 const BufferList = require('bl/BufferList');
 
 
@@ -293,9 +291,9 @@ function App(props) {
 
       <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
         <div style={{ fontSize: 16 }}>
-          <p>
+          {/* <p>
             Mint will load a system's data from the systemData JSON object in app.jsx and render an NFT.
-          </p>
+          </p> */}
         </div>
 
         <div style={{height: "10px"}}></div>

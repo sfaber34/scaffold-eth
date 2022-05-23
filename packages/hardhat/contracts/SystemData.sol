@@ -29,7 +29,6 @@ contract SystemData {
 
     string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 19];
     
-    // ASK: If looping kecak256 is a bad idea
     uint16 sectorI = 1;
     for (uint i=0; i<systems.length; i++) {
       if (keccak256(abi.encodePacked(systems[i].sector)) == keccak256(abi.encodePacked(thisSector))){

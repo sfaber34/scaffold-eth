@@ -39,7 +39,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
   address public systemDataAddress;
   
-    constructor(address _systemDataAddress) ERC721("Exos", "EXOS") {
+  constructor(address _systemDataAddress) ERC721("Exos", "EXOS") {
     systemDataAddress = _systemDataAddress;
   } 
 
@@ -67,7 +67,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       return id;
   }
   
-  // ASK: what're traits used for. How to set up external URL...
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 

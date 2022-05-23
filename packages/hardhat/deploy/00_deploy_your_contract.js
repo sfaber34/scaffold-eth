@@ -19,13 +19,13 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-  const test = await deploy("Test", {
-    from: deployer,
-    log: true,
-    libraries: {
-      Structs: structs.address
-    }
-  });
+  // const test = await deploy("Test", {
+  //   from: deployer,
+  //   log: true,
+  //   libraries: {
+  //     Structs: structs.address
+  //   }
+  // });
 
   const systemData = await deploy("SystemData", {
     from: deployer,
@@ -57,12 +57,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
-  if (chainId !== localChainId) {
-    await run("verify:verify", {
-      address: YourCollectible.address,
-      contract: "contracts/YourCollectible.sol:YourCollectible",
-      contractArguments: [],
-    });
-  }
+  // if (chainId !== localChainId) {
+  //   await run("verify:verify", {
+  //     address: YourCollectible.address,
+  //     contract: "contracts/YourCollectible.sol:YourCollectible",
+  //     contractArguments: [],
+  //   });
+  // }
 };
 module.exports.tags = ["YourCollectible"];
