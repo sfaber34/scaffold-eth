@@ -104,8 +104,9 @@ The remaining attributes needed for layout are pulled from System/Planet structs
 
 Much of the code in YourCollectible.sol is the same as Optimistic Loogies (some things in there definitely need edits to work with this fork if you want to take it live).
 
-## Known Issues / Wants
+## Known Issues
 
+- Planets render as flat base colors in Safari. I suspect Safari doesn't like **<filter id="smear">** in **ReturnSvg.sol** but needs investigating.
 - **Trigonometry.sol** (https://github.com/mds1/solidity-trigonometry) isn't being imported correctly. Works but can't be smart.
 - Rendering the background star field (**ReturnSvg.sol:82-107**) really slows down the app. Commented out for now.
 - There's no restrictions on possible planet colors (**Planet.colorA**, **Planet.colorB**, **Planet.colorC**) so there could be very dark planets which looks meh.
