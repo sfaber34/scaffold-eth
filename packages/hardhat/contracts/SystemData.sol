@@ -25,10 +25,11 @@ contract SystemData {
   function createSystem() public {
 
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
+    // Pick number of planets and system sector
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 5 + 2;
-
     string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 19];
     
+    // Index the system sector based on how many sister systems have been minted
     uint16 sectorI = 1;
     for (uint i=0; i<systems.length; i++) {
       if (keccak256(abi.encodePacked(systems[i].sector)) == keccak256(abi.encodePacked(thisSector))){
@@ -36,6 +37,7 @@ contract SystemData {
       }
     }
     
+    // Add the system with star radius between 20 to 90 px and a yellow/orange hue
     systems.push(Structs.System({
       sector: thisSector,
       sectorI: sectorI,
@@ -45,19 +47,19 @@ contract SystemData {
       planets: new uint256[] (0)
     }));
 
-
     uint16 plDiamSum;
-    uint16 orbDeadSpace;
+    uint16 orbDeadSpace; 
     uint16[] memory plRadii = new uint16[] (nPlanets);
     uint16[] memory plOrbDist = new uint16[] (nPlanets);
     for (uint i=0; i<nPlanets; i++){
+      // plRadii[] pushed to Planets struct below but need to do checks on layout first
       plRadii[i] = uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % 23 + 5;
       // Keep running sum of pixels that planets would occupy if stacked from edge of star outward
       plDiamSum += plRadii[i] * 2;
     }
 
-    // Handles when star radius + sum of planet diameters won't fit in SVG
-    if (plDiamSum + systems[systems.length-1].radius > 480){
+    // Handles when star radius + sum of planet diameters won't fit in SVG. Probaby a dumb way of doing this
+    if (plDiamSum + systems[systems.length-1].radius > 480){ // > 480 instead of > 500 to exclude possibility of planets touching
       uint16 diamOverflow = plDiamSum + systems[systems.length-1].radius - 500; // How many extra pixels need to be removed
       
       plDiamSum = 0;
@@ -69,7 +71,7 @@ contract SystemData {
       }
       
     }
-
+    
     // The number of pixels to add between planet orbit distance to spread them out evenly.
     orbDeadSpace = (500 - systems[systems.length-1].radius - plDiamSum - 10) / uint16(nPlanets);
     
@@ -97,7 +99,7 @@ contract SystemData {
           systems[systems.length-1].colorH = uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 200;
         }
       }
-      
+      // Keep track of planet ids to link them to systems
       systems[systems.length-1].planets.push(planets.length-1); 
     }
   }

@@ -69,7 +69,7 @@ This branch renders animated solar system SVG NFTs based on provided details abo
 
 ```
   struct Planet {
-    uint8 radius; // Planet radius (pixels)
+    uint16 radius; // Planet radius (pixels)
     uint16 orbDist; // Planet orbit distance; radial distance from star centroid to planet centroid (pixels)
     string colorA; // Base planet color (hex)
     string colorB; // Secondary planet color (hex)
@@ -77,17 +77,17 @@ This branch renders animated solar system SVG NFTs based on provided details abo
   }
 
   struct System {
-    string name; // Just used for nft attributes, mainly to draw text in bottom svg corners
-    uint16 distToSol; // Similiar to name. Not used in layout logic or anything
-    uint8 radius; // Star radius (pixels)
-    string color; // Star color (hex)
+    string sector; // The system parent name (randomly picked from string[20] internal sectors in SystemData.sol)
+    uint16 sectorI; // Index of system in sector. Just counts up currently
+    uint16 radius; // Star radius (pixels)
+    uint16 colorH; // Star Hue
     address owner;
     uint256[] planets; // stores ids of planets in each system
   }
 ```
-**System.name** and **System.distToSol** are just used to render text in the bottom corners of NFTs. **System.radius**, **System.color**, **Planet.radius**, **Planet.orbDist**, **Planet.colorA**, **Planet.colorB**, and **Planet.colorC** are used for layout logic. Please note that **Planet.orbDist** is calculated and does not need to be provided like other Planet attributes.<br /><br />
+**System.sector** and **System.sectorI** are  used to render text in the bottom corners of NFTs. **System.radius**, **System.colorH**, **Planet.radius**, **Planet.orbDist**, **Planet.colorA**, **Planet.colorB**, and **Planet.colorC** are used for layout logic.<br /><br />
 
-**SystemData.sol** has functions for filling/returning System/Planet structs. It also calculates planet orbit distance from star centroid to planet centroid (pixels) based on the order that planets are passed to **createSystem()**. It makes the orbit gap between planets (roughly) the same. Data used to fill structs is passed from the **App.jsx** "Mint" button's onClick function.<br /><br />
+**SystemData.sol** has functions for filling/returning System/Planet structs. **createSystem()** is a messy boi that randomly picks a number of planets, planet hex colors, system sector, star radius, and star hue. Planet colors can be anything but the star is restricted to yellow, orange, or blueish (using hsl() format). The function then checks if the chosen star/planet radii will fit in the SVG and reduces planet radii if not. Finally the func calculates the radial distance to place planets so that they're roughly evenly spread.<br /><br />
 
 The logic for building out star system SVGs for render lives in the **ReturnSvg.sol** library.
 ```
@@ -106,12 +106,11 @@ Much of the code in YourCollectible.sol is the same as Optimistic Loogies (some 
 
 ## Known Issues / Wants
 
-- **Planet.colorB**, **Planet.colorC** don't necessarily need to be specified. Planets still look ok if colorB/colorC are just darker shades of colorA which could be done programmatically.
 - **Trigonometry.sol** (https://github.com/mds1/solidity-trigonometry) isn't being imported correctly. Works but can't be smart.
-- There's currently no checks to make sure that stars and planets can all fit in frame. I'm sure things will get weird if the sum of the star radius and planet diameters > 500 px.
-- Rendering the background star field (**ReturnSvg.sol:75-85**) really slows down the app. NFTs look better with more background stars but currently only 50 are rendered.
-- **uint2str()** is in multiple contracts.
-- I'm sure a bunch of other stuff...
+- Rendering the background star field (**ReturnSvg.sol:82-107**) really slows down the app. Commented out for now.
+- There's no restrictions on possible planet colors (**Planet.colorA**, **Planet.colorB**, **Planet.colorC**) so there could be very dark planets which looks meh.
+- I tried some css hackery to disable the light mode in frontend. Causes legibility issues with addresses.
+- Need to make ant card in /yourExos responsive so it fits on little screens
 
 # 📚 Documentation
 

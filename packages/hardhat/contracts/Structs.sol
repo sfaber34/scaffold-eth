@@ -12,10 +12,10 @@ library Structs {
   }
 
   struct System {
-    string sector; // Just used for nft attributes, mainly to draw text in bottom svg corners
-    uint16 sectorI;
+    string sector; // The system parent name (randomly picked from string[20] internal sectors in SystemData.sol)
+    uint16 sectorI; // Index of system in sector. Just counts up currently
     uint16 radius; // Star radius (pixels)
-    uint16 colorH;
+    uint16 colorH; // Star Hue
     address owner;
     uint256[] planets; // stores ids of planets in each system
   }
