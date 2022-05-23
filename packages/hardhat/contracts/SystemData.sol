@@ -25,7 +25,7 @@ contract SystemData {
   function createSystem() public {
 
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
-    uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 3 + 2;
+    uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 5 + 2;
 
     string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 19];
     
@@ -40,7 +40,7 @@ contract SystemData {
     systems.push(Structs.System({
       sector: thisSector,
       sectorI: sectorI,
-      radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 100 + 20,
+      radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 70 + 20,
       colorH: uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 5,
       owner: msg.sender,
       planets: new uint256[] (0)
@@ -52,19 +52,18 @@ contract SystemData {
     uint16[] memory plRadii = new uint16[] (nPlanets);
     uint16[] memory plOrbDist = new uint16[] (nPlanets);
     for (uint i=0; i<nPlanets; i++){
-      plRadii[i] = uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % 35 + 5;
+      plRadii[i] = uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % 23 + 5;
       // Keep running sum of pixels that planets would occupy if stacked from edge of star outward
       plDiamSum += plRadii[i] * 2;
     }
 
     // Handles when star radius + sum of planet diameters won't fit in SVG
-    if (plDiamSum + systems[systems.length-1].radius > 500){
+    if (plDiamSum + systems[systems.length-1].radius > 480){
       uint16 diamOverflow = plDiamSum + systems[systems.length-1].radius - 500; // How many extra pixels need to be removed
       
       plDiamSum = 0;
       for (uint i=0; i<nPlanets; i++) {
-        // Reduce planet radii by common factor. + 5 so that planets with reduced radii aren't touching
-        // plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets + 5);
+        // Reduce planet radii by common factor.
         plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets);
         // Recalculate new planet diameters sum using reduced planet radii
         plDiamSum += plRadii[i] * 2;
@@ -73,7 +72,7 @@ contract SystemData {
     }
 
     // The number of pixels to add between planet orbit distance to spread them out evenly.
-    orbDeadSpace = (500 - systems[systems.length-1].radius - plDiamSum) / uint16(nPlanets);
+    orbDeadSpace = (500 - systems[systems.length-1].radius - plDiamSum - 10) / uint16(nPlanets);
     
     plOrbDist[0] = systems[systems.length-1].radius + plRadii[0] + orbDeadSpace;
     for (uint i=1; i<nPlanets; i++) {
