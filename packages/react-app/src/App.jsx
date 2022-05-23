@@ -160,7 +160,7 @@ function App(props) {
 
   const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
   if (DEBUG) console.log("🤗 totalSupply:", totalSupply);
-  const loogiesLeft = 64 - totalSupply;
+  const loogiesLeft = 256 - totalSupply;
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
@@ -406,7 +406,7 @@ function App(props) {
         🍴 <a href="https://github.com/scaffold-eth/scaffold-eth" target="_blank">Fork this repo</a> and build a cool SVG NFT!
       </div>
 
-      <ThemeSwitch />
+      {/* <ThemeSwitch /> */}
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>

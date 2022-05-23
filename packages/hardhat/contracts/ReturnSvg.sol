@@ -10,6 +10,11 @@ interface ISystemData {
   function getSystem(uint256) external view returns (Structs.System memory system);
   function createSystem() external;
 }
+// ASK: How to make card in YourExos responsive.
+// ASK: How to look at localhost on another device
+// ASK: If rendering 1000 x 1000 px svg is bad
+// ASK: about png background 
+// ASK: How to make blocky text white
 
 library ReturnSvg {
 

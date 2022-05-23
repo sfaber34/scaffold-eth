@@ -1,3 +1,20 @@
 .App {
   text-align: center;
 }
+.ant-card .ant-card-head, 
+.ant-card .ant-card-body {
+  background-color: rgb(18, 18, 18);
+}
+
+.ant-card .ant-card-body {
+  padding: 1px;
+}
+
+.ant-card .ant-card-body .ant-typography a{
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html body, 
+html .ant-menu-overflow {
+  background-color: rgb(21 21 21);
+}

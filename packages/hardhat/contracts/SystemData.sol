@@ -12,10 +12,10 @@ contract SystemData {
   using ToColor for bytes3;
   using Uint2Str for uint16;
 
-  string[23] internal sectors = [
-    'Surya', 'Harbinger', 'Chimera', 'Vulcan', 'Aya', 'Odin', 'Osiris', 
+  string[20] internal sectors = [
+    'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
     'Xi', 'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
-    'Mantis', 'Archer', 'Kappa', 'Ares', 'Eros', 'Icarus', 'Gamma', 
+    'Mantis', 'Archer', 'Kappa', 'Ares', 'Icarus', 'Gamma', 
     'Tycho',  'Vesta',  'Zephyr'
   ]; 
 
@@ -27,8 +27,9 @@ contract SystemData {
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 3 + 2;
 
-    string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 22];
+    string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 19];
     
+    // ASK: If looping kecak256 is a bad idea
     uint16 sectorI = 1;
     for (uint i=0; i<systems.length; i++) {
       if (keccak256(abi.encodePacked(systems[i].sector)) == keccak256(abi.encodePacked(thisSector))){
@@ -92,7 +93,7 @@ contract SystemData {
         colorC: colorBytesC.toColor()
       }));
 
-      // Make the star a blue dwarf if any planet radii is within 10 px of star radius
+      // Make the star a blue dwarf (hue:200-240) if any planet radii is within 10 px of star radius
       for (uint i=0; i<nPlanets; i++){
         if (plRadii[i] > systems[systems.length-1].radius - 10){
           systems[systems.length-1].colorH = uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 200;
