@@ -87,7 +87,7 @@ This branch renders animated solar system SVG NFTs based on provided details abo
 ```
 **System.sector** and **System.sectorI** are  used to render text in the bottom corners of NFTs. **System.radius**, **System.colorH**, **Planet.radius**, **Planet.orbDist**, **Planet.colorA**, **Planet.colorB**, and **Planet.colorC** are used for layout logic.<br /><br />
 
-**SystemData.sol** has functions for filling/returning System/Planet structs. **createSystem()** is a messy boi that randomly picks a number of planets, planet hex colors, system sector, star radius, and star hue. Planet colors can be anything but the star is restricted to yellow, orange, or blueish (using hsl() format). The function then checks if the chosen star/planet radii will fit in the SVG and reduces planet radii if not. Finally the func calculates the radial distance to place planets so that they're roughly evenly spread.<br /><br />
+**SystemData.sol** has functions for filling/returning System/Planet structs. **createSystem()** is a messy boi that randomly picks a number of planets, planet radii, planet hex colors, system sector, star radius, and star hue. Planet colors can be anything but the star is restricted to yellow, orange, or blueish (using hsl() format). The function then checks if the chosen star/planet radii will fit in the SVG and reduces planet radii if not. Finally, the function calculates the radial distance to place planets so that they're roughly evenly spread out.<br /><br />
 
 The logic for building out star system SVGs for render lives in the **ReturnSvg.sol** library.
 ```
