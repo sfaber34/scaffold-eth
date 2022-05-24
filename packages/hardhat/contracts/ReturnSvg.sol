@@ -67,7 +67,7 @@ library ReturnSvg {
     render = string(abi.encodePacked(
       render,
       '<filter id="smear" x="-50%" y="-50%" width="200%" height="200%">',
-        '<feTurbulence baseFrequency=".08" numOctaves="10" result="lol" />',
+        '<feTurbulence baseFrequency=".08" numOctaves="10" result="turbulence" />',
         '<feDisplacementMap in2="turbulence" in="SourceGraphic" scale="20" xChannelSelector="R" yChannelSelector="G" />',
         '<feComposite operator="in" in2="SourceGraphic" />',
       '</filter>',
@@ -132,7 +132,7 @@ library ReturnSvg {
         render,
         '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
-          (thisPlanet.orbDist / 14).uint2Str(), // Rough scaling to make further planets orbit slower
+          (thisPlanet.orbDist / 10).uint2Str(), // Rough scaling to make further planets orbit slower
           's" repeatCount="indefinite" additive="sum" />',
           '<circle cx="',
           cx.uint2Str(),
