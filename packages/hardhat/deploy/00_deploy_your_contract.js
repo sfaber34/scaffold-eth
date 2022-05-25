@@ -27,11 +27,17 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   //   }
   // });
 
+  // const systemNames = await deploy("SystemNames", {
+  //   from: deployer,
+  //   log: true,
+  // });
+
   const systemData = await deploy("SystemData", {
     from: deployer,
     log: true,
     libraries: {
-      Structs: structs.address
+      Structs: structs.address,
+      // SystemNames: systemNames.address
     }
   });
 

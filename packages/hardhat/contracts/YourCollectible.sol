@@ -32,8 +32,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   address payable public constant recipient =
     payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
-  uint256 public constant limit = 256;
-  uint256 public constant curve = 1002; // price increase 0,4% with each purchase
+  uint256 public constant limit = 512;
+  uint256 public constant curve = 1013; // price increase 0,4% with each purchase
   uint256 public price = 0.001 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
 
@@ -74,8 +74,11 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       
       string memory description = string(abi.encodePacked(
         system.sector,' ', system.sectorI.uint2Str(),
-        ' has ', system.planets.length.uint2Str(),
-        ' planetary bodies.'
+        ' is a ',
+        system.sequence,
+        ' star with ', 
+        system.planets.length.uint2Str(),
+        ' celestial bodies.'
       ));
 
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
@@ -93,9 +96,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               description,
                               '", "external_url":"https://foo.com/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "star_color", "value": "',
-                              // system.colorH,
-                              '22'
+                              '", "attributes": [{"trait_type": "star_type", "value": "',
+                              system.sequence,
                               '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
@@ -108,6 +110,12 @@ contract YourCollectible is ERC721Enumerable, Ownable {
               )
           );
   }
+
+                              //   '", "attributes": [{"trait_type": "color", "value": "#',
+                              // color[id].toColor(),
+                              // '"},{"trait_type": "chubbiness", "value": ',
+                              // uint2str(chubbiness[id]),
+                              // '}], "owner":"',
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
 

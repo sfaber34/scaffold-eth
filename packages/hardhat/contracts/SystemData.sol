@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import './Structs.sol';
+// import './SystemNames.sol';
 import './ToColor.sol';
 import './Uint2Str.sol';
 
@@ -11,38 +12,27 @@ contract SystemData {
 
   using ToColor for bytes3;
   using Uint2Str for uint16;
-
-  string[20] internal sectors = [
-    'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
-    'Xi', 'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
-    'Mantis', 'Archer', 'Kappa', 'Ares', 'Icarus', 'Gamma', 
-    'Tycho',  'Vesta',  'Zephyr'
-  ]; 
+  // using SystemNames for string;
 
   Structs.System[] public systems;
   Structs.Planet[] public planets;
 
-  function createSystem() public {
+  // string public alphabetTest;
 
+  function createSystem() public {
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
     // Pick number of planets and system sector
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 5 + 2;
-    string memory thisSector = sectors[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % 19];
-    
-    // Index the system sector based on how many sister systems have been minted
-    uint16 sectorI = 1;
-    for (uint i=0; i<systems.length; i++) {
-      if (keccak256(abi.encodePacked(systems[i].sector)) == keccak256(abi.encodePacked(thisSector))){
-        sectorI ++;
-      }
-    }
+
+    (string memory sector, uint16 sectorI) = generateSystemName();
     
     // Add the system with star radius between 20 to 90 px and a yellow/orange hue
     systems.push(Structs.System({
-      sector: thisSector,
+      sector: sector,
       sectorI: sectorI,
       radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 70 + 20,
       colorH: uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 5,
+      sequence: 'main sequence',
       owner: msg.sender,
       planets: new uint256[] (0)
     }));
@@ -97,11 +87,52 @@ contract SystemData {
       for (uint i=0; i<nPlanets; i++){
         if (plRadii[i] > systems[systems.length-1].radius - 10){
           systems[systems.length-1].colorH = uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 200;
+          systems[systems.length-1].sequence = 'blue dwarf';
         }
       }
       // Keep track of planet ids to link them to systems
       systems[systems.length-1].planets.push(planets.length-1); 
     }
+  }
+
+  function generateSystemName() public view returns (string memory, uint16) {
+    string[48] memory parentName = [
+      'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
+      'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
+      'Mantis', 'Archer', 'Ares', 'Icarus', 'Baal', 'Eros',
+      'Tycho',  'Vesta',  'Zephyr', 'Aether', 'Gaia', 'Hypnos',
+      'Invictus', 'Minerva', 'Aurora', 'Decima', 'Febris', 
+      'Fides', 'Honos', 'Hora', 'Inuus', 'Nixi', 'Pax',
+      'Spes', 'Aamon', 'Baku', 'Boruta', 'Chemosh', 'Dajjal',
+      'Grigori', 'Gorgon', 'Mazoku', 'Qin', 'Raum', 'Chax',
+      'Tengu', 'Ur', 'Vepar'
+    ];
+
+    string[24] memory greekAlphabet = [
+      'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 
+      'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 
+      'Xi', 'Omikron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 
+      'Phi', 'Chi', 'Psi', 'Omega'
+    ]; 
+
+    bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
+
+    string memory sector = string(abi.encodePacked(
+      greekAlphabet[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % greekAlphabet.length-1],
+      ' ',
+      parentName[uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % parentName.length-1],
+      ' '   
+    ));
+    
+    // Index the system sector based on how many sister systems have been minted
+    uint16 sectorI = 1;
+    for (uint i=0; i<systems.length; i++) {
+      if (keccak256(abi.encode(systems[i].sector)) == keccak256(abi.encode(sector))){
+        sectorI ++;
+      }
+    }
+
+    return (sector, sectorI);
   }
 
   function getSystem(uint256 systemId) external view returns(Structs.System memory returnSystem){

@@ -12,10 +12,11 @@ library Structs {
   }
 
   struct System {
-    string sector; // The system parent name (randomly picked from string[20] internal sectors in SystemData.sol)
+    string sector; // The system parent name
     uint16 sectorI; // Index of system in sector. Just counts up currently
     uint16 radius; // Star radius (pixels)
     uint16 colorH; // Star Hue
+    string sequence; // Star type: main sequence or dwarf  
     address owner;
     uint256[] planets; // stores ids of planets in each system
   }

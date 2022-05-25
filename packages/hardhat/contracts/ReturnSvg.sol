@@ -10,6 +10,20 @@ interface ISystemData {
   function getSystem(uint256) external view returns (Structs.System memory system);
   function createSystem() external;
 }
+// Fix this:
+// Contract call:       ReturnSvg#<unrecognized-selector>
+//   From:                0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+//   To:                  0xdc64a140aa3e981100a9beca4e685f962f0cf6c9
+
+//   Error: Transaction reverted: library was called directly
+//       at ReturnSvg.<unknown> (contracts/ReturnSvg.sol:28)
+//       at runMicrotasks (<anonymous>)
+//       at processTicksAndRejections (internal/process/task_queues.js:95:5)
+//       at HardhatNode.runCall (/Users/spencerfaber/dev/scaffold-eth/forks/exos-random/packages/hardhat/node_modules/hardhat/src/internal/hardhat-network/provider/node.ts:510:20)
+//       at EthModule._callAction (/Users/spencerfaber/dev/scaffold-eth/forks/exos-random/packages/hardhat/node_modules/hardhat/src/internal/hardhat-network/provider/modules/eth.ts:353:9)
+//       at HardhatNetworkProvider._sendWithLogging (/Users/spencerfaber/dev/scaffold-eth/forks/exos-random/packages/hardhat/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:127:22)
+//       at HardhatNetworkProvider.request (/Users/spencerfaber/dev/scaffold-eth/forks/exos-random/packages/hardhat/node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:104:18)
+//       at JsonRpcHandler._handleRequest (/Users/spencerfaber/dev/scaffold-eth/forks/exos-random/packages/hardhat/node_modules/hardhat/src/internal/hardhat-network/jsonrpc/handler.ts:188:20)
 
 library ReturnSvg {
 
@@ -30,7 +44,9 @@ library ReturnSvg {
     Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
     
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
-    uint64[10] memory angles = [0e18, 44879e14, 89759e13, 26927e14, 62831e14, 35903e14, 17951e14, 53855e14, 26927e14, 44879e14];
+    // uint64[7] memory angles = [0e18, 89759e13, 17952e14, 26928e14, 35904e14, 44880e14, 53856e14];
+    uint64[7] memory angles = [0e18, 35904e14, 53856e14, 89759e13, 17952e14, 44880e14, 26928e14];
+    // uint64[8] memory angles = [0e18, 78539e13, 15708e14, 23562e14, 31416e14, 39270e14, 47124e14, 54978e14];
     
     // Add the star radial gradient
     string memory render = string(abi.encodePacked(
