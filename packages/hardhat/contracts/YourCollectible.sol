@@ -78,7 +78,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
         system.sequence,
         ' star with ', 
         system.planets.length.uint2Str(),
-        ' celestial bodies.'
+        ' planets.'
       ));
 
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
@@ -96,8 +96,12 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               description,
                               '", "external_url":"https://foo.com/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "star_type", "value": "',
+                              '", "attributes": [{"trait_type": "sector", "value": "',
+                              system.sector,
+                              '"},{"trait_type": "star_type", "value": "',
                               system.sequence,
+                              '"},{"trait_type": "planet_count", "value": "',
+                              system.planets.length.uint2Str(),
                               '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',

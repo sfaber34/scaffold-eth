@@ -118,10 +118,10 @@ contract SystemData {
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
 
     string memory sector = string(abi.encodePacked(
-      greekAlphabet[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % greekAlphabet.length-1],
+      // Error: VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)
+      greekAlphabet[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % greekAlphabet.length],
       ' ',
-      parentName[uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % parentName.length-1],
-      ' '   
+      parentName[uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % parentName.length] 
     ));
     
     // Index the system sector based on how many sister systems have been minted
