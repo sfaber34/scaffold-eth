@@ -12,8 +12,7 @@ library Structs {
   }
 
   struct System {
-    string sector; // The system parent name
-    uint16 sectorI; // Index of system in sector. Just counts up currently
+    string name; // The system/star name
     uint16 radius; // Star radius (pixels)
     uint16 colorH; // Star Hue
     string sequence; // Star type: main sequence or dwarf  

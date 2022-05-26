@@ -73,7 +73,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
       
       string memory description = string(abi.encodePacked(
-        system.sector,' ', system.sectorI.uint2Str(),
+        system.name,
         ' is a ',
         system.sequence,
         ' star with ', 
@@ -91,14 +91,12 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str())),
+                              system.name,
                               '", "description":"',
                               description,
                               '", "external_url":"https://foo.com/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "sector", "value": "',
-                              system.sector,
-                              '"},{"trait_type": "star_type", "value": "',
+                              '", "attributes": [{"trait_type": "star_type", "value": "',
                               system.sequence,
                               '"},{"trait_type": "planet_count", "value": "',
                               system.planets.length.uint2Str(),

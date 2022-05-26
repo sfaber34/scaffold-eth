@@ -6,6 +6,8 @@ import './Structs.sol';
 import './ToColor.sol';
 import './Uint2Str.sol';
 
+// import "hardhat/console.sol";
+
 //Note: Not sure that the method for planet colors is as random as could be (the way i'm doing byte positions)
 
 contract SystemData {
@@ -23,13 +25,10 @@ contract SystemData {
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
     // Pick number of planets and system sector
     uint16 nPlanets = uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 )) % 5 + 2;
-
-    (string memory sector, uint16 sectorI) = generateSystemName();
     
     // Add the system with star radius between 20 to 90 px and a yellow/orange hue
     systems.push(Structs.System({
-      sector: sector,
-      sectorI: sectorI,
+      name: generateSystemName(),
       radius: uint16(bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[7]) >> 8 )) % 70 + 20,
       colorH: uint16(bytes2(predictableRandom[30]) | ( bytes2(predictableRandom[31]) >> 8 )) % 40 + 5,
       sequence: 'main sequence',
@@ -95,7 +94,7 @@ contract SystemData {
     }
   }
 
-  function generateSystemName() public view returns (string memory, uint16) {
+  function generateSystemName() public view returns (string memory) {
     string[48] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
@@ -115,24 +114,44 @@ contract SystemData {
       'Phi', 'Chi', 'Psi', 'Omega'
     ]; 
 
+    string[6] memory tert = [
+      'Sector', 'Region', 'Quadrant', 'Reach', 'Zone', 'Tract'
+    ]; 
+
+    string memory name;
+    uint i=0;
+    uint8 nMatch;
+
     bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
+    // Attempt to find a unique name combo 30 times
+    do {
+      name = string(abi.encodePacked(
+        // Error: VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)
+        greekAlphabet[uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % greekAlphabet.length],
+        ' ',
+        parentName[uint16(bytes2(predictableRandom[i+2]) | ( bytes2(predictableRandom[i+3]) >> 8 )) % parentName.length],
+        ' ',
+        tert[uint16(bytes2(predictableRandom[i+4]) | ( bytes2(predictableRandom[i+5]) >> 8 )) % tert.length] 
+      ));
 
-    string memory sector = string(abi.encodePacked(
-      // Error: VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)
-      greekAlphabet[uint16(bytes2(predictableRandom[2]) | ( bytes2(predictableRandom[3]) >> 8 )) % greekAlphabet.length],
-      ' ',
-      parentName[uint16(bytes2(predictableRandom[4]) | ( bytes2(predictableRandom[5]) >> 8 )) % parentName.length] 
-    ));
-    
-    // Index the system sector based on how many sister systems have been minted
-    uint16 sectorI = 1;
-    for (uint i=0; i<systems.length; i++) {
-      if (keccak256(abi.encode(systems[i].sector)) == keccak256(abi.encode(sector))){
-        sectorI ++;
+      // Loop previous names to see if there's a match with new name
+      for (uint k=0; k<systems.length; k++) {
+        if (keccak256(abi.encode(systems[k].name)) == keccak256(abi.encode(name))) {
+          nMatch++; // Incremented to compare later with i (name iteration)
+          break;
+        }
       }
-    }
+      // New name is unique. Force loop to exit
+      if (i >= nMatch) {
+        i=30;
+      }
 
-    return (sector, sectorI);
+      i++;
+    } while (i < 20);
+    
+    require(nMatch < i , "Could not find unique name combination in 20 trys");
+    
+    return name;
   }
 
   function getSystem(uint256 systemId) external view returns(Structs.System memory returnSystem){

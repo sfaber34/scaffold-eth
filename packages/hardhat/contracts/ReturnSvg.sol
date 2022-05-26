@@ -205,7 +205,7 @@ library ReturnSvg {
     render = string(abi.encodePacked(
       render,
       '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
-      string(abi.encodePacked(system.sector, ' ', system.sectorI.uint2Str())),
+      system.name,
       '</text>'
     ));
 
