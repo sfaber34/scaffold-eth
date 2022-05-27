@@ -9,6 +9,7 @@ library Structs {
     string colorA; // Base planet color (hex)
     string colorB; // Secondary planet color (hex)
     string colorC; // Tertiary planet color (hex)
+    string colorD; // You get it...
   }
 
   struct System {

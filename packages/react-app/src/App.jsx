@@ -281,8 +281,8 @@ function App(props) {
         <Menu.Item key="/yourExos">
           <Link to="/yourExos">Your Exos</Link>
         </Menu.Item>
-        <Menu.Item key="/howto">
-          <Link to="/howto">How To Use Optimistic Network</Link>
+        <Menu.Item key="/about">
+          <Link to="/about">About</Link>
         </Menu.Item>
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
@@ -342,10 +342,10 @@ function App(props) {
             address={address}
           />
         </Route>
-        <Route exact path="/howto">
+        <Route exact path="/about">
           <div style={{ fontSize: 18, width: 820, margin: "auto" }}>
-            <h2 style={{ fontSize: "2em", fontWeight: "bold" }}>How to add Optimistic Ethereum network on MetaMask</h2>
-            <div style={{ textAlign: "left", marginLeft: 50, marginBottom: 50 }}>
+            <h2 style={{ fontSize: "2em", fontWeight: "bold" }}>About Exos</h2>
+            {/* <div style={{ textAlign: "left", marginLeft: 50, marginBottom: 50 }}>
               <ul>
                 <li>
                   Go to <a target="_blank" href="https://chainid.link/?network=optimism">https://chainid.link/?network=optimism</a>
@@ -362,7 +362,7 @@ function App(props) {
                 <li><a href="https://gateway.optimism.io/" target="_blank">The Optimism Gateway</a>: larger transfers and cost more.</li>
                 <li><a href="https://app.hop.exchange/send?token=ETH&sourceNetwork=ethereum&destNetwork=optimism" target="_blank">Hop.Exchange</a>: where you can send from/to Ethereum mainnet and other L2 networks.</li>
               </ul>
-            </div>
+            </div> */}
           </div>
         </Route>
         <Route exact path="/debug">

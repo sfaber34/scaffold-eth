@@ -70,16 +70,18 @@ contract SystemData {
     }
 
     for (uint i=0; i<nPlanets; i++){
-      bytes3 colorBytesA = bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 ) | ( bytes3(predictableRandom[i+2]) >> 16 );
-      bytes3 colorBytesB = bytes2(predictableRandom[i+3]) | ( bytes2(predictableRandom[i+4]) >> 8 ) | ( bytes3(predictableRandom[i+5]) >> 16 );
-      bytes3 colorBytesC = bytes2(predictableRandom[i+6]) | ( bytes2(predictableRandom[i+7]) >> 8 ) | ( bytes3(predictableRandom[i+8]) >> 16 );
-
+      bytes3 colorBytesA = bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+4]) >> 8 ) | ( bytes3(predictableRandom[i+10]) >> 16 );
+      bytes3 colorBytesB = bytes2(predictableRandom[i+20]) | ( bytes2(predictableRandom[i+8]) >> 8 ) | ( bytes3(predictableRandom[i+2]) >> 16 );
+      bytes3 colorBytesC = bytes2(predictableRandom[i+16]) | ( bytes2(predictableRandom[i+12]) >> 8 ) | ( bytes3(predictableRandom[i+4]) >> 16 );
+      bytes3 colorBytesD = bytes2(predictableRandom[i+3]) | ( bytes2(predictableRandom[i+7]) >> 8 ) | ( bytes3(predictableRandom[i+24]) >> 16 );
+      
       planets.push(Structs.Planet({
         radius: plRadii[i],
         orbDist: plOrbDist[i],
         colorA: colorBytesA.toColor(),
         colorB: colorBytesB.toColor(),
-        colorC: colorBytesC.toColor()
+        colorC: colorBytesC.toColor(),
+        colorD: colorBytesD.toColor()
       }));
 
       // Make the star a blue dwarf (hue:200-240) if any planet radii is within 10 px of star radius
@@ -150,7 +152,7 @@ contract SystemData {
     } while (i < 20);
     
     require(nMatch < i , "Could not find unique name combination in 20 trys");
-    
+
     return name;
   }
 
