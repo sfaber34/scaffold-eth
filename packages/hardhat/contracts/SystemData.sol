@@ -73,7 +73,7 @@ contract SystemData {
       bytes3 colorBytesA = bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+4]) >> 8 ) | ( bytes3(predictableRandom[i+10]) >> 16 );
       bytes3 colorBytesB = bytes2(predictableRandom[i+20]) | ( bytes2(predictableRandom[i+8]) >> 8 ) | ( bytes3(predictableRandom[i+2]) >> 16 );
       bytes3 colorBytesC = bytes2(predictableRandom[i+16]) | ( bytes2(predictableRandom[i+12]) >> 8 ) | ( bytes3(predictableRandom[i+4]) >> 16 );
-      bytes3 colorBytesD = bytes2(predictableRandom[i+3]) | ( bytes2(predictableRandom[i+7]) >> 8 ) | ( bytes3(predictableRandom[i+24]) >> 16 );
+      bytes3 colorBytesD = bytes2(predictableRandom[i+3]) | ( bytes2(predictableRandom[i+24]) >> 8 ) | ( bytes3(predictableRandom[i+24]) >> 16 );
       
       planets.push(Structs.Planet({
         radius: plRadii[i],
@@ -97,7 +97,7 @@ contract SystemData {
   }
 
   function generateSystemName() public view returns (string memory) {
-    string[48] memory parentName = [
+    string[49] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
       'Mantis', 'Archer', 'Ares', 'Icarus', 'Baal', 'Eros',
@@ -106,7 +106,7 @@ contract SystemData {
       'Fides', 'Honos', 'Hora', 'Inuus', 'Nixi', 'Pax',
       'Spes', 'Aamon', 'Baku', 'Boruta', 'Chemosh', 'Dajjal',
       'Grigori', 'Gorgon', 'Mazoku', 'Qin', 'Raum', 'Chax',
-      'Tengu', 'Ur', 'Vepar'
+      'Tengu', 'Ur', 'Vepar', 'Lazarus'
     ];
 
     string[24] memory greekAlphabet = [

@@ -158,7 +158,7 @@ function App(props) {
 
   const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
   if (DEBUG) console.log("🤗 totalSupply:", totalSupply);
-  const loogiesLeft = 256 - totalSupply;
+  const loogiesLeft = 512 - totalSupply;
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);

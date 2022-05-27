@@ -74,13 +74,14 @@ This branch renders animated solar system SVG NFTs based on provided details abo
     string colorA; // Base planet color (hex)
     string colorB; // Secondary planet color (hex)
     string colorC; // Tertiary planet color (hex)
+    string colorD; // You get it...
   }
 
   struct System {
-    string sector; // The system parent name (randomly picked from string[20] internal sectors in SystemData.sol)
-    uint16 sectorI; // Index of system in sector. Just counts up currently
+    string name; // The system/star name
     uint16 radius; // Star radius (pixels)
     uint16 colorH; // Star Hue
+    string sequence; // Star type: main sequence or dwarf  
     address owner;
     uint256[] planets; // stores ids of planets in each system
   }
