@@ -70,7 +70,8 @@ function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBU
             loading={loadingLoogies}
             dataSource={allLoogies}
             renderItem={item => {
-              const id = item.id.toNumber();
+              // const id = item.id.toNumber();
+              const id = item.id;
 
               return (
                 <List.Item key={id + "_" + item.uri + "_" + item.owner}>

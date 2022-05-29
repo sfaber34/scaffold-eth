@@ -22,7 +22,8 @@ function Home({
         <List
           dataSource={yourCollectibles}
           renderItem={item => {
-            const id = item.id.toNumber();
+            // const id = item.id.toNumber();
+            const id = item.id;
 
             return (
               <List.Item key={id + "_" + item.uri + "_" + item.owner}>

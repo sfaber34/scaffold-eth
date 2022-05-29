@@ -16,6 +16,7 @@ import './Trigonometry.sol';
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
+
 contract YourCollectible is ERC721Enumerable, Ownable {
 
   using Strings for uint256;
@@ -29,8 +30,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   Counters.Counter private _tokenIds;
 
   // all funds go to buidlguidl.eth
-  address payable public constant recipient =
-    payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
+  address payable public constant recipient = payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
   uint256 public constant limit = 512;
   uint256 public constant curve = 1011; // price increase 0,4% with each purchase
@@ -43,26 +43,26 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     systemDataAddress = _systemDataAddress;
   } 
 
-  // I didn't mess with the price curve here. It's still set up for minting ~2000 Loogies.
   function mintItem()
       public
       payable
       returns (uint256)
   {
-      require(_tokenIds.current() < limit, "DONE MINTING");
+      // require(_tokenIds.current() < limit, "DONE MINTING");
+      require(totalSupply() < limit, "DONE MINTING");
       require(msg.value >= price, "NOT ENOUGH");
-
-      ISystemData(systemDataAddress).createSystem();
       
       price = (price * curve) / 1000;
 
-      uint256 id = _tokenIds.current();
+      // uint256 id = _tokenIds.current();
+      uint256 id = uint256(keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp )));
+
       _mint(msg.sender, id);
 
       (bool success, ) = recipient.call{value: msg.value}("");
       require(success, "could not send");
 
-      _tokenIds.increment();
+      // _tokenIds.increment();
       
       return id;
   }
@@ -70,14 +70,14 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 
-      Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+      (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
       
       string memory description = string(abi.encodePacked(
         system.name,
         ' is a ',
         system.sequence,
         ' star with ', 
-        system.planets.length.uint2Str(),
+        planets.length.uint2Str(),
         ' planets.'
       ));
 
@@ -91,7 +91,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              system.name,
+                              // system.name,
                               '", "description":"',
                               description,
                               '", "external_url":"https://foo.com/',
@@ -99,7 +99,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               '", "attributes": [{"trait_type": "star_type", "value": "',
                               system.sequence,
                               '"},{"trait_type": "planet_count", "value": "',
-                              system.planets.length.uint2Str(),
+                              planets.length.uint2Str(),
                               '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',

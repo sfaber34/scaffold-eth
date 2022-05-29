@@ -4,11 +4,10 @@ pragma solidity ^0.8.0;
 import './Trigonometry.sol';
 import './Structs.sol';
 import './Uint2Str.sol';
+import './ToColor.sol';
 
 interface ISystemData {
-  function getPlanet(uint256) external view returns (Structs.Planet[] memory planets);
-  function getSystem(uint256) external view returns (Structs.System memory system);
-  function createSystem() external;
+  function createSystem(uint256) external view returns (Structs.System memory, Structs.Planet[] memory);
 }
 
 library ReturnSvg {
@@ -16,6 +15,7 @@ library ReturnSvg {
   using Trigonometry for uint256;
   using Uint2Str for uint;
   using Uint2Str for uint16;
+  using ToColor for bytes3;
   
   function calcPlanetXY(uint256 rDist_, uint256 rads) internal pure returns (uint256, uint256) {
     int256 rDist = int256(rDist_);
@@ -26,8 +26,8 @@ library ReturnSvg {
   }
 
   function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
-    Structs.Planet[] memory planets = ISystemData(systemDataAddress).getPlanet(id);
-    Structs.System memory system = ISystemData(systemDataAddress).getSystem(id);
+
+    (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
     
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
     // uint64[7] memory angles = [0e18, 89759e13, 17952e14, 26928e14, 35904e14, 44880e14, 53856e14];

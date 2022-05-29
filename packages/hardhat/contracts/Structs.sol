@@ -17,8 +17,6 @@ library Structs {
     uint16 radius; // Star radius (pixels)
     uint16 colorH; // Star Hue
     string sequence; // Star type: main sequence or dwarf  
-    address owner;
-    uint256[] planets; // stores ids of planets in each system
   }
 
 }
