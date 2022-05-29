@@ -15,7 +15,7 @@ contract SystemData {
   using Uint2Str for uint16;
   // using SystemNames for string;
 
-  function createSystem(uint256 id) external view returns (Structs.System memory, Structs.Planet[] memory) {
+  function createSystem(uint256 id) external pure returns (Structs.System memory, Structs.Planet[] memory) {
 
     bytes32 predictableRandom = bytes32(id);
     // Pick number of planets and system sector
@@ -66,10 +66,10 @@ contract SystemData {
 
       planets[i].radius = plRadii[i];
       planets[i].orbDist = plOrbDist[i];
-      planets[i].colorA = ( bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+4]) >> 8 ) | ( bytes3(predictableRandom[i+10]) >> 16 ) ).toColor();
-      planets[i].colorB = ( bytes2(predictableRandom[i+20]) | ( bytes2(predictableRandom[i+8]) >> 8 ) | ( bytes3(predictableRandom[i+2]) >> 16 ) ).toColor();
-      planets[i].colorC = ( bytes2(predictableRandom[i+16]) | ( bytes2(predictableRandom[i+12]) >> 8 ) | ( bytes3(predictableRandom[i+4]) >> 16 ) ).toColor();
-      planets[i].colorD = ( bytes2(predictableRandom[i+3]) | ( bytes2(predictableRandom[i+24]) >> 8 ) | ( bytes3(predictableRandom[i+24]) >> 16 ) ).toColor();
+      planets[i].colorA = ( bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 ) | ( bytes3(predictableRandom[i+2]) >> 16 ) ).toColor();
+      planets[i].colorB = ( bytes2(predictableRandom[i+9]) | ( bytes2(predictableRandom[i+10]) >> 8 ) | ( bytes3(predictableRandom[i+11]) >> 16 ) ).toColor();
+      planets[i].colorC = ( bytes2(predictableRandom[i+19]) | ( bytes2(predictableRandom[i+20]) >> 8 ) | ( bytes3(predictableRandom[i+21]) >> 16 ) ).toColor();
+      planets[i].colorD = ( bytes2(predictableRandom[i+26]) | ( bytes2(predictableRandom[20-i]) >> 8 ) | ( bytes3(predictableRandom[i+9]) >> 16 ) ).toColor();
 
       // Make the star a blue dwarf (hue:200-240) if any planet radii is within 10 px of star radius
       for (uint i=0; i<nPlanets; i++){
@@ -83,7 +83,7 @@ contract SystemData {
     return (system, planets);
   }
 
-  function generateSystemName(uint256 id) internal view returns (string memory) {
+  function generateSystemName(uint256 id) internal pure returns (string memory) {
     string[49] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
@@ -105,43 +105,55 @@ contract SystemData {
 
     string[6] memory tert = [
       'Sector', 'Region', 'Quadrant', 'Reach', 'Zone', 'Tract'
-    ]; 
-
-    string memory name;
-    uint i=0;
-    uint8 nMatch;
+    ];
 
     bytes32 predictableRandom = bytes32(id);
-    // Attempt to find a unique name combo 20 times
-    do {
-      name = string(abi.encodePacked(
-        // Error: VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)
-        greekAlphabet[uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % greekAlphabet.length],
-        ' ',
-        parentName[uint16(bytes2(predictableRandom[i+2]) | ( bytes2(predictableRandom[i+3]) >> 8 )) % parentName.length],
-        ' ',
-        tert[uint16(bytes2(predictableRandom[i+4]) | ( bytes2(predictableRandom[i+5]) >> 8 )) % tert.length] 
-      ));
 
-      // Loop previous names to see if there's a match with new name
-      // for (uint k=0; k<systems.length; k++) {
-      //   if (keccak256(abi.encode(systems[k].name)) == keccak256(abi.encode(name))) {
-      //     nMatch++; // Incremented to compare later with i (name iteration)
-      //     break;
-      //   }
-      // }
-      // New name is unique. Force loop to exit
-      if (i >= nMatch) {
-        i=30;
-      }
+    string memory name = string(abi.encodePacked(
+      greekAlphabet[uint8(bytes1(predictableRandom[0])) % greekAlphabet.length],
+      ' ',
+      parentName[uint8(bytes1(predictableRandom[1])) % parentName.length],
+      ' ',
+      tert[uint8(bytes1(predictableRandom[2])) % tert.length] 
+    ));
 
-      i++;
-    } while (i < 20);
-    
-    require(nMatch < i , "Could not find unique name combination in 20 trys");
-
-    return name;
+    return name; 
   }
+
+    // string memory name;
+    // uint i=0;
+    // uint8 nMatch;
+
+    // bytes32 predictableRandom = bytes32(id);
+    // // Attempt to find a unique name combo 20 times
+    // do {
+    //   name = string(abi.encodePacked(
+    //     // Error: VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)
+    //     greekAlphabet[uint16(bytes2(predictableRandom[i]) | ( bytes2(predictableRandom[i+1]) >> 8 )) % greekAlphabet.length],
+    //     ' ',
+    //     parentName[uint16(bytes2(predictableRandom[i+2]) | ( bytes2(predictableRandom[i+3]) >> 8 )) % parentName.length],
+    //     ' ',
+    //     tert[uint16(bytes2(predictableRandom[i+4]) | ( bytes2(predictableRandom[i+5]) >> 8 )) % tert.length] 
+    //   ));
+
+    //   // Loop previous names to see if there's a match with new name
+    //   for (uint k=0; k<systems.length; k++) {
+    //     if (keccak256(abi.encode(systems[k].name)) == keccak256(abi.encode(name))) {
+    //       nMatch++; // Incremented to compare later with i (name iteration)
+    //       break;
+    //     }
+    //   }
+    //   // New name is unique. Force loop to exit
+    //   if (i >= nMatch) {
+    //     i=30;
+    //   }
+
+    //   i++;
+    // } while (i < 20);
+    
+    // require(nMatch < i , "Could not find unique name combination in 20 tries");
+
+    // return name;
   
 }
 

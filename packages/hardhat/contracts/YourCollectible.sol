@@ -33,7 +33,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   address payable public constant recipient = payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
   uint256 public constant limit = 512;
-  uint256 public constant curve = 1011; // price increase 0,4% with each purchase
+  uint256 public constant curve = 1011;
   uint256 public price = 0.01 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
 
