@@ -19,25 +19,18 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-  const test = await deploy("Test", {
+
+  const systemName = await deploy("SystemName", {
     from: deployer,
     log: true,
-    libraries: {
-      Structs: structs.address
-    }
   });
-
-  // const systemNames = await deploy("SystemNames", {
-  //   from: deployer,
-  //   log: true,
-  // });
 
   const systemData = await deploy("SystemData", {
     from: deployer,
     log: true,
     libraries: {
       Structs: structs.address,
-      // SystemNames: systemNames.address
+      SystemName: systemName.address
     }
   });
 
@@ -46,17 +39,26 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
     libraries: {
       Trigonometry: trigonometry.address,
-      Structs: structs.address
+      Structs: structs.address,
+      SystemData: systemData.address
     }
   });
+
+  // const test = await deploy("Test", {
+  //   from: deployer,
+  //   log: true,
+  //   libraries: {
+  //     Structs: structs.address
+  //   }
+  // });
 
   await deploy("YourCollectible", {
     from: deployer,
     log: true,
-    args: [systemData.address],
     libraries: {
+      Trigonometry: trigonometry.address,
       ReturnSvg: returnSvg.address,
-      Trigonometry: trigonometry.address
+      SystemData: systemData.address
     }
   });
   

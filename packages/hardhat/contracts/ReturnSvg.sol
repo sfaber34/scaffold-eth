@@ -5,10 +5,7 @@ import './Trigonometry.sol';
 import './Structs.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
-
-interface ISystemData {
-  function createSystem(uint256) external view returns (Structs.System memory, Structs.Planet[] memory);
-}
+import './SystemData.sol';
 
 library ReturnSvg {
 
@@ -25,9 +22,11 @@ library ReturnSvg {
     return (uint256(cx), uint256(cy));
   }
 
-  function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
+  // function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
+    function returnSvg(uint256 id) external pure returns (string memory) {
 
-    (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
+    // (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
+    (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.createSystem(id);
     
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
     // uint64[7] memory angles = [0e18, 89759e13, 17952e14, 26928e14, 35904e14, 44880e14, 53856e14];
@@ -83,18 +82,18 @@ library ReturnSvg {
     ));
 
     // Add background star field. Looks better with more stars but 50 extra svg <circles> is already hard on render/display in app
-    // bytes32 predictableRandom;
+    // bytes32 seed;
     // uint8 k;
     // for (uint i=0; i<50; i++) {      
     //   if (i % 28 == 0){ 
     //     k=0;
-    //     predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), block.timestamp, msg.sender, i ));
+    //     seed = keccak256(abi.encodePacked( blockhash(block.number-1), block.timestamp, msg.sender, i ));
     //   }
 
     //   // Get x/y coordinates between 0 - 1000 pixels and an opacity between .15 and .45
-    //   uint16 xRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+1]) >> 8 )) % 1000;
-    //   uint16 yRand = uint16(bytes2(predictableRandom[k+2]) | ( bytes2(predictableRandom[k+3]) >> 8 )) % 1000;
-    //   uint16 opacityRand = uint16(bytes2(predictableRandom[k]) | ( bytes2(predictableRandom[k+2]) >> 8 )) % 30 + 15;
+    //   uint16 xRand = uint16(bytes2(seed[k]) | ( bytes2(seed[k+1]) >> 8 )) % 1000;
+    //   uint16 yRand = uint16(bytes2(seed[k+2]) | ( bytes2(seed[k+3]) >> 8 )) % 1000;
+    //   uint16 opacityRand = uint16(bytes2(seed[k]) | ( bytes2(seed[k+2]) >> 8 )) % 30 + 15;
     //   k++;
 
     //   render = string(abi.encodePacked(
@@ -122,7 +121,7 @@ library ReturnSvg {
     // a top circle with linear gradient for the shadow.
     // The abi.encodePacked() is split to avoid stack overflows
     for (uint i=0; i<planets.length; i++) {
-      // Recast to avoid stack overflows. Not pretty
+      // Recast to avoid stack overflows
       Structs.Planet memory thisPlanet = planets[i];
 
       (uint256 cx, uint256 cy) = calcPlanetXY(thisPlanet.orbDist, uint256(angles[i]));
@@ -168,7 +167,7 @@ library ReturnSvg {
             ' ',
             cy.uint2Str(),
             '" begin="0s" dur="',
-            (thisPlanet.radius * 65 + 500).uint2Str(), // Planet rotation time. Spans 825 to 3100 ms depending on planet radius
+            (thisPlanet.radius * 65 + 500).uint2Str(), // Planet rotation time. Spans ~800 to 3000 ms depending on planet radius
             'ms" repeatCount="indefinite" additive="sum" />',
           '</circle>',
           '<circle cx="',

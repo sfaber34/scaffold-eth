@@ -10,6 +10,7 @@ import './HexStrings.sol';
 import './ToColor.sol';
 import './Uint2Str.sol';
 import './ReturnSvg.sol';
+import './SystemData.sol';
 import './Trigonometry.sol';
 
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
@@ -37,11 +38,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   uint256 public price = 0.01 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
 
-  address public systemDataAddress;
-  
-  constructor(address _systemDataAddress) ERC721("Exos", "EXOS") {
-    systemDataAddress = _systemDataAddress;
-  } 
+  constructor() ERC721("Exos", "EXOS") {} 
 
   function mintItem()
       public
@@ -55,7 +52,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       price = (price * curve) / 1000;
 
       // uint256 id = _tokenIds.current();
-      uint256 id = uint256(keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp )));
+      uint256 id = uint256(keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), msg.value, block.timestamp )));
 
       _mint(msg.sender, id);
 
@@ -70,7 +67,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 
-      (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
+      // (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
+      (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.createSystem(id);
       
       string memory description = string(abi.encodePacked(
         system.name,
@@ -119,7 +117,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               // uint2str(chubbiness[id]),
                               // '}], "owner":"',
 
-  function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+  function generateSVGofTokenById(uint256 id) internal pure returns (string memory) {
 
     string memory svg = string(abi.encodePacked(
       '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
@@ -131,8 +129,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   }
 
   // Visibility is `public` to enable it being called by other contracts for composition.
-  function renderTokenById(uint256 id) public view returns (string memory) {
-    string memory render = id.returnSvg(systemDataAddress);
+  function renderTokenById(uint256 id) public pure returns (string memory) {
+    string memory render = id.returnSvg();
     
     return render;
   }
