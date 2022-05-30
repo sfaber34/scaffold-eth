@@ -103,18 +103,24 @@ contract SystemData {
       'Phi', 'Chi', 'Psi', 'Omega'
     ]; 
 
-    string[6] memory tert = [
-      'Sector', 'Region', 'Quadrant', 'Reach', 'Zone', 'Tract'
+    string[12] memory tert = [
+      'Sector', 'Region', 'Quadrant', 'Reach', 'Zone', 'Tract',
+      'Expanse', 'Extent', 'Province', 'Territory', 'Span',
+      'Locus'
     ];
 
     bytes32 predictableRandom = bytes32(id);
+
+    // bytes3 nameBytes = bytes3(bytes.concat( bytes2(predictableRandom[13]), bytes2(predictableRandom[14]), bytes2(predictableRandom[15])  )).toColor();
 
     string memory name = string(abi.encodePacked(
       greekAlphabet[uint8(bytes1(predictableRandom[0])) % greekAlphabet.length],
       ' ',
       parentName[uint8(bytes1(predictableRandom[1])) % parentName.length],
       ' ',
-      tert[uint8(bytes1(predictableRandom[2])) % tert.length] 
+      tert[uint8(bytes1(predictableRandom[2])) % tert.length],
+      '-',
+      ( bytes2(predictableRandom[29]) | ( bytes2(predictableRandom[30]) >> 8 ) | ( bytes3(predictableRandom[31]) >> 16 ) ).toColor()
     ));
 
     return name; 

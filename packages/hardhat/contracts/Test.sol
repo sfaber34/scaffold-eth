@@ -19,6 +19,7 @@ contract Test {
   uint256 public prToUint;
   bytes1 public b1;
   bytes2 public b2;
+  bytes3 public b3;
   uint8 public u8;
   uint16 public u16;
 
@@ -29,6 +30,7 @@ contract Test {
 
       b1 = bytes1(predictableRandomA[0]);
       b2 = bytes2(predictableRandomA[0]);
+      b3 = ( bytes2(predictableRandomA[0]) | ( bytes2(predictableRandomA[1]) >> 8 ) | ( bytes3(predictableRandomA[2]) >> 16 ) );
       u8 = uint8(bytes1(predictableRandomA[0]));
       u16 = uint16(bytes2(predictableRandomA[0]));
     }  
