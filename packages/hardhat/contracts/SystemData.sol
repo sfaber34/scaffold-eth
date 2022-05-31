@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import './Structs.sol';
 import './SystemName.sol';
-import './ToColor.sol';
 import './Uint2Str.sol';
+import './ToColor.sol';
 
 // import "hardhat/console.sol";
 
@@ -24,8 +24,8 @@ library SystemData {
     Structs.Planet[] memory planets = new Structs.Planet[] (nPlanets);
 
     system.name = id.systemName();
-    system.radius = uint16(bytes2(seed[0]) | ( bytes2(seed[7]) >> 8 )) % 70 + 20;
-    system.colorH = uint16(bytes2(seed[30]) | ( bytes2(seed[31]) >> 8 )) % 40 + 5;
+    system.radius = uint16(bytes2(seed[6]) | ( bytes2(seed[7]) >> 8 )) % 70 + 20;
+    system.colorH = uint16(bytes2(seed[30]) | ( bytes2(seed[31]) >> 8 )) % 60;
     system.sequence = 'main sequence';
 
     uint16 plDiamSum;
@@ -73,7 +73,7 @@ library SystemData {
       // Make the star a blue dwarf (hue:200-240) if any planet radii is within 10 px of star radius
       for (uint i=0; i<nPlanets; i++){
         if (plRadii[i] > system.radius - 10){
-          system.colorH = uint16(bytes2(seed[30]) | ( bytes2(seed[31]) >> 8 )) % 40 + 200;
+          system.colorH = uint16(bytes2(seed[30]) | ( bytes2(seed[31]) >> 8 )) % 105 + 150;
           system.sequence = 'blue dwarf';
         }
       }

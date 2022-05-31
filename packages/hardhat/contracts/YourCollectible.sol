@@ -7,16 +7,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 import './HexStrings.sol';
-import './ToColor.sol';
 import './Uint2Str.sol';
-import './ReturnSvg.sol';
+import './ToColor.sol';
 import './SystemData.sol';
-import './Trigonometry.sol';
-
-//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
-
-// GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
-
+import './ReturnSvg.sol';
 
 contract YourCollectible is ERC721Enumerable, Ownable {
 
