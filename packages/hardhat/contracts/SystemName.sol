@@ -7,7 +7,7 @@ library SystemName {
 
   using ToColor for bytes3;
 
-  function systemName(uint256 id) external pure returns (string memory) {
+  function generateSystemName(uint256 id) external pure returns (string memory) {
     string[49] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 

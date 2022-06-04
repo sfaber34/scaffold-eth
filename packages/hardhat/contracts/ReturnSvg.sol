@@ -11,6 +11,7 @@ library ReturnSvg {
 
   using Trigonometry for uint256;
   using Uint2Str for uint;
+  using Uint2Str for uint8;
   using Uint2Str for uint16;
   using ToColor for bytes3;
   
@@ -25,11 +26,9 @@ library ReturnSvg {
   // function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
     function returnSvg(uint256 id) external pure returns (string memory) {
 
-    // (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).createSystem(id);
-    (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.createSystem(id);
+    (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.generateSystemData(id);
     
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
-    // uint64[7] memory angles = [0e18, 89759e13, 17952e14, 26928e14, 35904e14, 44880e14, 53856e14];
     uint64[7] memory angles = [0e18, 35904e14, 53856e14, 89759e13, 17952e14, 44880e14, 26928e14];
     
     // Add the star radial gradient
@@ -37,42 +36,28 @@ library ReturnSvg {
       '<defs>',
       '<radialGradient id="star" r="65%" spreadMethod="pad">',
         '<stop offset="0%" stop-color="hsl(',
-        system.colorH.uint2Str(),
+        system.hue.uint2Str(),
         ',65%,95%)" stop-opacity="1" />',
         '<stop offset="60%" stop-color="hsl(',
-        system.colorH.uint2Str(),
-        ',40%,75%)" stop-opacity="1" />',
+        system.hue.uint2Str(),
+        // ',40%,75%)" stop-opacity="1" />',
+        ',50%,65%)" stop-opacity="1" />',
         '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
       '</radialGradient>'
     ));
 
     // Add planet radial gradients. These will be scrambled by "smear" filter to give planets texture
     for (uint i=0; i<planets.length; i++) {
+      string memory planetGradientFilter = getPlanetGradientFilter(i, planets[i]);
+      
       render = string(abi.encodePacked(
         render,
-        '<radialGradient id="',
-        i.uint2Str(),
-        '" r="50%">',
-          '<stop offset="15%" stop-color="#',
-          planets[i].colorD,
-          '"/>',
-          '<stop offset="65%" stop-color="#',
-          planets[i].colorC,
-          '"/>',
-          '<stop offset="95%" stop-color="#',
-          planets[i].colorB,
-          '"/>',
-        '</radialGradient>'
+        planetGradientFilter
       ));
     }
-    // Add filters for scrambling planet radial gradients
+    // Add shadow gradient and close <defs>
     render = string(abi.encodePacked(
       render,
-      '<filter id="smear" x="-50%" y="-50%" width="200%" height="200%">',
-        '<feTurbulence baseFrequency=".08" numOctaves="10" result="turbulence" />',
-        '<feDisplacementMap in2="turbulence" in="SourceGraphic" scale="20" xChannelSelector="R" yChannelSelector="G" />',
-        '<feComposite operator="in" in2="SourceGraphic" />',
-      '</filter>',
       '<linearGradient id="shadow" x1="100%" y1="0%" x2="0%" y2="0%" spreadMethod="pad">',
         '<stop offset="30%" stop-color="#000000" stop-opacity="1" />',
         '<stop offset="40%" stop-color="#000000" stop-opacity=".9" />',
@@ -142,9 +127,9 @@ library ReturnSvg {
           cy.uint2Str(),
           '" r="',
           (thisPlanet.radius).uint2Str(),
-          '" fill="#',
-          thisPlanet.colorA,
-          '"></circle>',
+          '" fill="hsl(',
+          thisPlanet.hueA.uint2Str(),
+          ', 90%, 40%)"></circle>',
           '<circle cx="',
           cx.uint2Str(),
           '" cy="',
@@ -153,7 +138,9 @@ library ReturnSvg {
           (thisPlanet.radius).uint2Str(),
           '" style="fill:url(#',
           i.uint2Str(),
-          ');" filter="url(#smear)">'
+          ');" filter="url(#smear',
+          i.uint2Str(),
+          ')">'
       ));
 
       render = string(abi.encodePacked(
@@ -196,6 +183,108 @@ library ReturnSvg {
     ));
 
     return render;
+  }
+
+  function getPlanetGradientFilter(uint i, Structs.Planet memory planet) internal pure returns (string memory planetGradient) {
+    uint8 turbBaseFreq;
+    uint8 blurDeviation;
+
+    // Gas planet
+    if (planet.category == 0) {
+      turbBaseFreq = 0;
+      blurDeviation = 1;
+
+      planetGradient = string(abi.encodePacked(
+        '<radialGradient id="',
+        i.uint2Str(),
+        '" r="40%">',
+          // '<stop offset="5%" stop-color="hsl(',
+          // planet.hueB.uint2Str(),
+          // ', 90%, 50%)"/>',
+          '<stop offset="50%" stop-color="hsl(',
+          planet.hueA.uint2Str(),
+          ', 90%, 30%)"/>',
+          '<stop offset="90%" stop-color="hsl(',
+          planet.hueC.uint2Str(),
+          ', 90%, 60%)"/>',
+          '<stop offset="97%" stop-color="hsl(',
+          planet.hueD.uint2Str(),
+          ', 70%, 75%)"/>',
+          '<stop offset="100%" stop-color="hsl(',
+          planet.hueB.uint2Str(),
+          ', 90%, 10%)"/>',
+        '</radialGradient>'
+      ));
+    }
+    // Rocky planet
+    else if (planet.category == 1) {
+      turbBaseFreq = 4;
+      blurDeviation = 0;
+
+      planetGradient = string(abi.encodePacked(
+        '<radialGradient id="',
+        i.uint2Str(),
+        '" r="100%">',
+          '<stop offset="5%" stop-color="hsl(',
+          planet.hueB.uint2Str(),
+          ', 90%, 50%)"/>',
+          '<stop offset="35%" stop-color="hsl(',
+          planet.hueC.uint2Str(),
+          ', 90%, 10%)"/>',
+          '<stop offset="55%" stop-color="hsl(',
+          planet.hueD.uint2Str(),
+          ', 90%, 60%)"/>',
+          '<stop offset="95%" stop-color="hsl(',
+          planet.hueE.uint2Str(),
+          ', 90%, 10%)"/>',
+        '</radialGradient>'
+      ));
+    }
+    // Water World
+    else if (planet.category == 2) {
+      turbBaseFreq = 0;
+      blurDeviation = 0;
+
+      planetGradient = string(abi.encodePacked(
+        '<radialGradient id="',
+          i.uint2Str(),
+          '" r="30%">',
+          '<stop offset="15%" stop-color="hsl(0, 0%, 100%)"/>',
+          '<stop offset="35%" stop-color="hsl(',
+          planet.hueB.uint2Str(),
+          ', 90%, 10%)"/>',
+          '<stop offset="75%" stop-color="hsl(',
+          planet.hueC.uint2Str(),
+          ', 90%, 50%)"/>',
+          '<stop offset="90%" stop-color="hsl(',
+          planet.hueD.uint2Str(),
+          ', 90%, 40%)"/>',
+          '<stop offset="95%" stop-color="hsl(',
+          planet.hueE.uint2Str(),
+          ', 90%, 20%)"/>',
+        '</radialGradient>'
+      ));
+    }
+
+    string memory planetGradientFilter = string(abi.encodePacked(
+      planetGradient,
+      '<filter id="smear',
+      i.uint2Str(),
+      '">',
+        '<feTurbulence baseFrequency="',
+        turbBaseFreq.uint2Str(),
+        '.08" numOctaves="10" result="turbulence" />',
+        '<feDisplacementMap in2="turbulence" in="SourceGraphic" scale="',
+        planet.turbScale.uint2Str(),
+        '" xChannelSelector="R" yChannelSelector="G" result="displacement"/>',
+        '<feGaussianBlur in="displacement" stdDeviation="',
+        blurDeviation.uint2Str(),
+        '" />',
+        '<feComposite operator="in" in2="SourceGraphic" />',
+      '</filter>'
+    ));
+
+    return planetGradientFilter;
   }
 
 }
