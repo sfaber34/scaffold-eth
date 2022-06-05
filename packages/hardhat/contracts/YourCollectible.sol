@@ -61,7 +61,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 
-      // (Structs.System memory system, Structs.Planet[] memory planets) = ISystemData(systemDataAddress).generateSystemData(id);
       (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.generateSystemData(id);
       
       string memory description = string(abi.encodePacked(

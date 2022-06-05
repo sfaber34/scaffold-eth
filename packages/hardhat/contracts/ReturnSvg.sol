@@ -23,8 +23,8 @@ library ReturnSvg {
     return (uint256(cx), uint256(cy));
   }
 
-  // function returnSvg(uint256 id, address systemDataAddress) external view returns (string memory) {
-    function returnSvg(uint256 id) external pure returns (string memory) {
+
+  function returnSvg(uint256 id) external pure returns (string memory) {
 
     (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.generateSystemData(id);
     
@@ -202,7 +202,7 @@ library ReturnSvg {
           // planet.hueB.uint2Str(),
           // ', 90%, 50%)"/>',
           '<stop offset="50%" stop-color="hsl(',
-          planet.hueA.uint2Str(),
+          planet.hueB.uint2Str(),
           ', 90%, 30%)"/>',
           '<stop offset="90%" stop-color="hsl(',
           planet.hueC.uint2Str(),
@@ -211,8 +211,8 @@ library ReturnSvg {
           planet.hueD.uint2Str(),
           ', 70%, 75%)"/>',
           '<stop offset="100%" stop-color="hsl(',
-          planet.hueB.uint2Str(),
-          ', 90%, 10%)"/>',
+          planet.hueE.uint2Str(),
+          ', 90%, 30%)"/>',
         '</radialGradient>'
       ));
     }

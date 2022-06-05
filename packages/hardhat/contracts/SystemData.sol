@@ -15,7 +15,7 @@ import './ToColor.sol';
 // TODO: Try to make rocky planets look more different
 // TODO: Fix URI attributes
 // TODO: Look at planet layout/scaling again... Slightly upping the max gas planet size seems to make things too crowded
-// TODO: Make water world base lightness = 55%
+// TODO: Figure out if we need 
 
 
 library SystemData {
@@ -27,14 +27,14 @@ library SystemData {
   function generateSystemData(uint256 id) external pure returns (Structs.System memory system, Structs.Planet[] memory) {
     system.name = id.generateSystemName();
 
-    (uint16 radius, uint16 hue, string memory category) = getStarAttributes(id);
-    system.radius = radius;
-    system.hue = hue;
-    system.category = category;
+    system.radius = getStarRadius(id);
+    system.hue = getStarHue(id, system.radius);
+    system.category = getStarCategory(system.radius);
 
-    (uint16[] memory plRadii, 
-    uint16[] memory plOrbDist, 
-    uint8[] memory plCategory) = getPlanetRadiiOrbitsTypes(id, system.radius);
+    uint16 nPlanets = getNPlanets(id);
+    uint16[] memory plRadii = getPlanetRadii(id, nPlanets);
+    uint16[] memory plOrbDist = getPlanetOrbitDistance(system.radius, plRadii);
+    uint8[] memory plCategory = getPlanetCategories(plRadii, plOrbDist);
     
     Structs.Planet[] memory planets = new Structs.Planet[] (plRadii.length);
 
@@ -43,7 +43,8 @@ library SystemData {
       planets[i].orbDist = plOrbDist[i];
       planets[i].category = plCategory[i];
 
-      (uint16 turbScale, uint16[5] memory plHues) = getPlanetHuesTurbScale(id, i, plCategory[i]);
+      uint16[5] memory plHues = getPlanetHues(id, i, plCategory[i]);
+      uint16 turbScale = getPlanetTurbScale(id, i, plCategory[i]);
 
       planets[i].turbScale = turbScale;
       planets[i].hueA = plHues[0];
@@ -56,65 +57,107 @@ library SystemData {
     return (system, planets);
   }
 
-  function getStarAttributes(uint256 id) internal pure returns (uint16 radius, uint16 hue, string memory category) {
+
+  function getStarRadius(uint256 id) internal pure returns (uint16 starRadius) {
     bytes32 seed = bytes32(id);
     
-    radius = uint16(bytes2(seed[6]) | (bytes2(seed[7]) >> 8)) % 71 + 20;
+    starRadius = uint16(bytes2(seed[6]) | (bytes2(seed[7]) >> 8)) % 71 + 20;
+    // starRadius = 90;
 
-    if (radius < 41) {
-      hue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 41 + 180;
-      category = 'blue dwarf';
-    } else if (radius > 69) {
-      hue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 21;
-      category = 'red giant';
-    } else {
-      hue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 26 + 30;
-      category = 'main category';
-    }
-
-    return (radius, hue, category);
+    return starRadius;
   }
 
-  function getPlanetRadiiOrbitsTypes(uint256 id, uint16 starRadius) internal pure returns (uint16[] memory, uint16[] memory, uint8[] memory) {
+
+  function getStarCategory(uint16 starRadius) internal pure returns (string memory starCategory) {
+
+    if (starRadius < 41) {
+      starCategory = 'blue dwarf';
+    } 
+    else if (starRadius > 69) {
+      starCategory = 'red giant';
+    } 
+    else {
+      starCategory = 'main category';
+    }
+
+    return starCategory;
+  }
+
+
+  function getStarHue(uint256 id, uint16 starRadius) internal pure returns (uint16 starHue) {
     bytes32 seed = bytes32(id);
 
-    uint16 nPlanets = uint16(bytes2(seed[0]) | ( bytes2(seed[1]) >> 8 )) % 4 + 2;
+    // Blue Dwaft
+    if (starRadius < 41) {
+      starHue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 41 + 180;
+    }
+    // Red Giant 
+    else if (starRadius > 69) {
+      starHue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 21;
+    }
+    // Main Sequence 
+    else {
+      starHue = uint16(bytes2(seed[30]) | (bytes2(seed[31]) >> 8)) % 26 + 30;
+    }
+
+    return starHue;
+  }
+
+
+  function getPlanetRadii(uint256 id, uint16 nPlanets) internal pure returns (uint16[] memory) {
+    bytes32 seed = bytes32(id);
+
     uint16[] memory plRadii = new uint16[] (nPlanets);
-    uint16[] memory plOrbDist = new uint16[] (nPlanets);
-    uint8[] memory plCategory = new uint8[] (nPlanets);
-
-    uint16 plDiamSum;     
-
+    uint8 nNonGas;
+    
     for (uint i=0; i<nPlanets; i++) {
-      // plRadii[] pushed to Planets struct below but need to do checks on layout first
-      plRadii[i] = uint16(bytes2(seed[i]) | ( bytes2(seed[31-i]) >> 8 )) % 26 + 10;
-      // Keep running sum of pixels that planets would occupy if stacked from edge of star outward
+      plRadii[i] = uint16(bytes2(seed[i]) | ( bytes2(seed[31-i]) >> 8 )) % 24 + 10;
+      // plRadii[i] = 33;
+
+      // Keep track of n non-gas planets. Want at least 1 planet that players can land on
+      if (plRadii[i] < 20) {
+        nNonGas++;
+      }
+    }
+
+    // If all planets are gas, make the one closest to star a rocky (or possibly) earth-like world
+    if (nNonGas == 0) {
+      plRadii[0] = uint16(bytes2(seed[0]) | ( bytes2(seed[31]) >> 8 )) % 10 + 10;
+    }
+
+    return plRadii;
+  }
+
+
+  function getPlanetOrbitDistance(uint16 starRadius, uint16[] memory plRadii) internal pure returns (uint16[] memory) {
+
+    uint16[] memory plOrbDist = new uint16[] (plRadii.length);
+
+    uint16 plDiamSum;  
+
+    // Keep running sum of pixels that planets would occupy if stacked from edge of star outward
+    for (uint i=0; i<plRadii.length; i++) {
       plDiamSum += plRadii[i] * 2;
     }
 
-    // Handles when star radius + sum of planet diameters won't fit in SVG. Probaby a dumb way of doing this
-    if (plDiamSum + starRadius > 480) { // > 480 instead of > 500 to exclude possibility of planets touching
-      uint16 diamOverflow = plDiamSum + starRadius - 500; // How many extra pixels need to be removed
-      
-      plDiamSum = 0;
-      for (uint i=0; i<nPlanets; i++) {
-        // Reduce planet radii by common factor.
-        plRadii[i] = plRadii[i] - (diamOverflow / 2 / nPlanets + 5);
-        // Recalculate new planet diameters sum using reduced planet radii
-        plDiamSum += plRadii[i] * 2;
-      }
-      
-    }
-    
-    // The number of pixels to add between planet orbit distance to spread them out evenly.
-    uint16 orbDeadSpace = (500 - starRadius - plDiamSum - 10) / uint16(nPlanets);
+    // The number of pixels to add between each planet to spread them out evenly.
+    uint16 orbDeadSpace = (500 - starRadius - plDiamSum) / uint16(plRadii.length);
     
     plOrbDist[0] = starRadius + plRadii[0] + orbDeadSpace;
-    for (uint i=1; i<nPlanets; i++) {
-      plOrbDist[i] = plOrbDist[i-1] + plRadii[i] * 2 + orbDeadSpace;
+
+    for (uint i=1; i<plRadii.length; i++) {
+      plOrbDist[i] = plOrbDist[i-1] + plRadii[i-1] + plRadii[i] + orbDeadSpace;
     }
 
-    for (uint i=0; i<nPlanets; i++) {
+    return plOrbDist;
+  }
+
+
+  function getPlanetCategories(uint16[] memory plRadii, uint16[] memory plOrbDist) internal pure returns (uint8[] memory) {
+
+    uint8[] memory plCategory = new uint8[] (plRadii.length);
+
+    for (uint i=0; i<plRadii.length; i++) {
       if (plRadii[i] > 19) {
         plCategory[i] = 0;
       } else {
@@ -126,15 +169,25 @@ library SystemData {
       }
     }
 
-    return (plRadii, plOrbDist, plCategory);
+    return plCategory;
   }
 
-  function getPlanetHuesTurbScale(uint256 id, uint256 index, uint8 plCategory) internal pure returns (uint16 turbScale, uint16[5] memory plHues) {
+
+  function getNPlanets(uint256 id) internal pure returns (uint16 nPlanets) {
+    bytes32 seed = bytes32(id);
+
+    nPlanets = uint16(bytes2(seed[0]) | ( bytes2(seed[1]) >> 8 )) % 4 + 2;
+    // nPlanets = 5;
+
+    return nPlanets;
+  }
+
+
+  function getPlanetHues(uint256 id, uint256 index, uint8 plCategory) internal pure returns (uint16[5] memory plHues) {
     bytes32 seed = bytes32(id);
 
     // Gas giant
     if (plCategory == 0) {
-      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 8 + 7;
       plHues[0] = uint16(bytes2(seed[index])) % 360;
       plHues[1] = uint16(bytes2(seed[index+7])) % 360;
       plHues[2] = uint16(bytes2(seed[index+14])) % 360;
@@ -143,7 +196,6 @@ library SystemData {
     }
     // Rocky planet 
     else if (plCategory == 1) {
-      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 21 + 20;
       plHues[0] = uint16(bytes2(seed[index])) % 121;
       plHues[1] = plHues[0] + uint16(bytes2(seed[index+7])) % 11;
       plHues[2] = uint16(bytes2(seed[index+14])) % 131;
@@ -152,15 +204,33 @@ library SystemData {
     }
     // Water world 
     else {
-      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 23 + 18;
-      plHues[0] = uint16(bytes2(seed[index])) % 51 + 170;
+      plHues[0] = uint16(bytes2(seed[index])) % 36 + 170;
       plHues[1] = uint16(bytes2(seed[index+7])) % 51;
       plHues[2] = uint16(bytes2(seed[index+14])) % 51;
       plHues[3] = uint16(bytes2(seed[index+19])) % 71 + 70;
       plHues[4] = uint16(bytes2(seed[index+25])) % 71 + 70;
     }
 
-    return (turbScale, plHues);
-  } 
+    return plHues;
+  }
+
+  function getPlanetTurbScale(uint256 id, uint256 index, uint8 plCategory) internal pure returns (uint16 turbScale) {
+    bytes32 seed = bytes32(id);
+
+    // Gas giant
+    if (plCategory == 0) {
+      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 8 + 7;
+    }
+    // Rocky planet 
+    else if (plCategory == 1) {
+      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 21 + 20;
+    }
+    // Water world 
+    else {
+      turbScale = uint16(bytes2(seed[index+6]) | ( bytes2(seed[index+16]) >> 8 )) % 23 + 18;
+    }
+
+    return turbScale;
+  }  
 
 }
