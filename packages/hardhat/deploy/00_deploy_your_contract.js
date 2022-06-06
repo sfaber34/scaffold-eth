@@ -19,7 +19,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-
   const systemName = await deploy("SystemName", {
     from: deployer,
     log: true,
@@ -27,20 +26,15 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   const systemData = await deploy("SystemData", {
     from: deployer,
-    log: true,
-    libraries: {
-      Structs: structs.address,
-      SystemName: systemName.address
-    }
+    log: true
   });
 
   const returnSvg = await deploy("ReturnSvg", {
     from: deployer,
     log: true,
     libraries: {
-      Trigonometry: trigonometry.address,
       Structs: structs.address,
-      SystemData: systemData.address
+      Trigonometry: trigonometry.address,
     }
   });
 
@@ -56,9 +50,11 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     from: deployer,
     log: true,
     libraries: {
+      Structs: structs.address,
       Trigonometry: trigonometry.address,
+      SystemData: systemData.address,
       ReturnSvg: returnSvg.address,
-      SystemData: systemData.address
+      SystemName: systemName.address
     }
   });
   

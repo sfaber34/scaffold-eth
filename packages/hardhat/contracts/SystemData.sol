@@ -24,41 +24,7 @@ library SystemData {
   using Uint2Str for uint16;
   using SystemName for uint256;
 
-  function generateSystemData(uint256 id) external pure returns (Structs.System memory system, Structs.Planet[] memory) {
-    system.name = id.generateSystemName();
-
-    system.radius = getStarRadius(id);
-    system.hue = getStarHue(id, system.radius);
-    system.category = getStarCategory(system.radius);
-
-    uint16 nPlanets = getNPlanets(id);
-    uint16[] memory plRadii = getPlanetRadii(id, nPlanets);
-    uint16[] memory plOrbDist = getPlanetOrbitDistance(system.radius, plRadii);
-    uint8[] memory plCategory = getPlanetCategories(plRadii, plOrbDist);
-    
-    Structs.Planet[] memory planets = new Structs.Planet[] (plRadii.length);
-
-    for (uint i=0; i<plRadii.length; i++) {
-      planets[i].radius = plRadii[i];
-      planets[i].orbDist = plOrbDist[i];
-      planets[i].category = plCategory[i];
-
-      uint16[5] memory plHues = getPlanetHues(id, i, plCategory[i]);
-      uint16 turbScale = getPlanetTurbScale(id, i, plCategory[i]);
-
-      planets[i].turbScale = turbScale;
-      planets[i].hueA = plHues[0];
-      planets[i].hueB = plHues[1];
-      planets[i].hueC = plHues[2];
-      planets[i].hueD = plHues[3];
-      planets[i].hueE = plHues[4];
-    }
-
-    return (system, planets);
-  }
-
-
-  function getStarRadius(uint256 id) internal pure returns (uint16 starRadius) {
+  function getStarRadius(uint256 id) external pure returns (uint16 starRadius) {
     bytes32 seed = bytes32(id);
     
     starRadius = uint16(bytes2(seed[6]) | (bytes2(seed[7]) >> 8)) % 71 + 20;
@@ -68,7 +34,7 @@ library SystemData {
   }
 
 
-  function getStarCategory(uint16 starRadius) internal pure returns (string memory starCategory) {
+  function getStarCategory(uint16 starRadius) external pure returns (string memory starCategory) {
 
     if (starRadius < 41) {
       starCategory = 'blue dwarf';
@@ -84,7 +50,7 @@ library SystemData {
   }
 
 
-  function getStarHue(uint256 id, uint16 starRadius) internal pure returns (uint16 starHue) {
+  function getStarHue(uint256 id, uint16 starRadius) external pure returns (uint16 starHue) {
     bytes32 seed = bytes32(id);
 
     // Blue Dwaft
@@ -104,7 +70,7 @@ library SystemData {
   }
 
 
-  function getPlanetRadii(uint256 id, uint16 nPlanets) internal pure returns (uint16[] memory) {
+  function getPlanetRadii(uint256 id, uint16 nPlanets) external pure returns (uint16[] memory) {
     bytes32 seed = bytes32(id);
 
     uint16[] memory plRadii = new uint16[] (nPlanets);
@@ -129,7 +95,7 @@ library SystemData {
   }
 
 
-  function getPlanetOrbitDistance(uint16 starRadius, uint16[] memory plRadii) internal pure returns (uint16[] memory) {
+  function getPlanetOrbitDistance(uint16 starRadius, uint16[] memory plRadii) external pure returns (uint16[] memory) {
 
     uint16[] memory plOrbDist = new uint16[] (plRadii.length);
 
@@ -153,7 +119,7 @@ library SystemData {
   }
 
 
-  function getPlanetCategories(uint16[] memory plRadii, uint16[] memory plOrbDist) internal pure returns (uint8[] memory) {
+  function getPlanetCategories(uint16[] memory plRadii, uint16[] memory plOrbDist) external pure returns (uint8[] memory) {
 
     uint8[] memory plCategory = new uint8[] (plRadii.length);
 
@@ -173,7 +139,7 @@ library SystemData {
   }
 
 
-  function getNPlanets(uint256 id) internal pure returns (uint16 nPlanets) {
+  function getNPlanets(uint256 id) external pure returns (uint16 nPlanets) {
     bytes32 seed = bytes32(id);
 
     nPlanets = uint16(bytes2(seed[0]) | ( bytes2(seed[1]) >> 8 )) % 4 + 2;
@@ -183,7 +149,7 @@ library SystemData {
   }
 
 
-  function getPlanetHues(uint256 id, uint256 index, uint8 plCategory) internal pure returns (uint16[5] memory plHues) {
+  function getPlanetHues(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16[5] memory plHues) {
     bytes32 seed = bytes32(id);
 
     // Gas giant
@@ -214,7 +180,7 @@ library SystemData {
     return plHues;
   }
 
-  function getPlanetTurbScale(uint256 id, uint256 index, uint8 plCategory) internal pure returns (uint16 turbScale) {
+  function getPlanetTurbScale(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16 turbScale) {
     bytes32 seed = bytes32(id);
 
     // Gas giant
