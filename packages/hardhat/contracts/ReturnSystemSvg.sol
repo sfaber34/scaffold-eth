@@ -6,7 +6,7 @@ import './Structs.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
 
-library ReturnSvg {
+contract ReturnSystemSvg {
 
   using Trigonometry for uint256;
   using Uint2Str for uint;
@@ -23,9 +23,7 @@ library ReturnSvg {
   }
 
 
-  function returnSvg(Structs.System memory system, Structs.Planet[] memory planets) external pure returns (string memory) {
-
-    // (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.generateSystemData(id);
+  function returnSystemSvg(Structs.System memory system, Structs.Planet[] memory planets) external pure returns (string memory) {
     
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
     uint64[7] memory angles = [0e18, 35904e14, 53856e14, 89759e13, 17952e14, 44880e14, 26928e14];

@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import './ToColor.sol';
 
-library SystemName {
+contract SystemName {
 
   using ToColor for bytes3;
 

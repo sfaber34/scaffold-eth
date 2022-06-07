@@ -6,12 +6,37 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
+import './Trigonometry.sol';
+import './Structs.sol';
 import './HexStrings.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
-import './SystemData.sol';
-import './SystemName.sol';
-import './ReturnSvg.sol';
+
+
+interface IReturnSystemSvg {
+  function returnSystemSvg(
+    Structs.System memory system,
+    Structs.Planet[] memory planets
+  ) external pure returns (
+    string memory
+  );
+}
+
+interface ISystemName {
+  function generateSystemName(uint256 id) external pure returns (string memory);
+}
+
+interface ISystemData {
+  function getStarRadius(uint256 id) external pure returns (uint16);
+  function getStarCategory(uint16 starRadius) external pure returns (string memory);
+  function getStarHue(uint256 id, uint16 starRadius) external pure returns (uint16);
+  function getPlanetRadii(uint256 id, uint16 nPlanets) external pure returns (uint16[] memory);
+  function getPlanetOrbitDistance(uint16 starRadius, uint16[] memory plRadii) external pure returns (uint16[] memory);
+  function getPlanetCategories(uint16[] memory plRadii, uint16[] memory plOrbDist) external pure returns (uint8[] memory);
+  function getNPlanets(uint256 id) external pure returns (uint16);
+  function getPlanetHues(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16[5] memory);
+  function getPlanetTurbScale(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16);
+}
 
 contract YourCollectible is ERC721Enumerable, Ownable {
 
@@ -20,11 +45,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   using Uint2Str for uint256;
   using HexStrings for uint160;
   using ToColor for bytes3;
-  using ReturnSvg for Structs.System;
-  using SystemName for uint256;
-  using SystemData for uint16;
-  using SystemData for uint256;
-  using SystemData for uint16[];
   using Trigonometry for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
@@ -37,7 +57,21 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   uint256 public price = 0.01 ether;
   // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
 
-  constructor() ERC721("Exos", "EXOS") {} 
+  address public structsAddress;
+  address public systemDataAddress;
+  address public systemNameAddress;
+  address public returnSystemSvgAddress;
+  constructor(
+    address _structsAddress,
+    address _systemDataAddress,
+    address _systemNameAddress,
+    address _returnSystemSvgAddress
+  ) ERC721("Exos", "EXOS") {
+    structsAddress = _structsAddress;
+    systemDataAddress = _systemDataAddress;
+    systemNameAddress = _systemNameAddress;
+    returnSystemSvgAddress = _returnSystemSvgAddress;
+  } 
 
   function mintItem()
       public
@@ -121,7 +155,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                               // uint2str(chubbiness[id]),
                               // '}], "owner":"',
 
-  function generateSVGofTokenById(uint256 id) internal pure returns (string memory) {
+  function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
 
     string memory svg = string(abi.encodePacked(
       '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
@@ -133,24 +167,25 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   }
 
   // Visibility is `public` to enable it being called by other contracts for composition.
-  function renderTokenById(uint256 id) public pure returns (string memory) {
-    (Structs.System memory system, Structs.Planet[] memory planets) = generateSystemLayoutData(id);
-    string memory render = system.returnSvg(planets);
+  function renderTokenById(uint256 id) public view returns (string memory) {
+    (Structs.System memory system, Structs.Planet[] memory planets) = populateSystemLayoutData(id);
+    // string memory render = system.returnSystemSvg(planets);
+    string memory render = IReturnSystemSvg(returnSystemSvgAddress).returnSystemSvg(system, planets);
     
     return render;
   }
 
-  function generateSystemLayoutData(uint256 id) public pure returns (Structs.System memory system, Structs.Planet[] memory) {
-    system.name = id.generateSystemName();
+  function populateSystemLayoutData(uint256 id) public view returns (Structs.System memory system, Structs.Planet[] memory) {
+    system.name = ISystemName(systemNameAddress).generateSystemName(id);
 
-    system.radius = id.getStarRadius();
-    system.hue = id.getStarHue(system.radius);
-    system.category = system.radius.getStarCategory();
+    system.radius = ISystemData(systemDataAddress).getStarRadius(id);
+    system.hue = ISystemData(systemDataAddress).getStarHue(id, system.radius);
+    system.category = ISystemData(systemDataAddress).getStarCategory(system.radius);
 
-    uint16 nPlanets = id.getNPlanets();
-    uint16[] memory plRadii = id.getPlanetRadii(nPlanets);
-    uint16[] memory plOrbDist = system.radius.getPlanetOrbitDistance(plRadii);
-    uint8[] memory plCategory = plRadii.getPlanetCategories(plOrbDist);
+    uint16 nPlanets = ISystemData(systemDataAddress).getNPlanets(id);
+    uint16[] memory plRadii = ISystemData(systemDataAddress).getPlanetRadii(id, nPlanets);
+    uint16[] memory plOrbDist = ISystemData(systemDataAddress).getPlanetOrbitDistance(system.radius, plRadii);
+    uint8[] memory plCategory = ISystemData(systemDataAddress).getPlanetCategories(plRadii, plOrbDist);
     
     Structs.Planet[] memory planets = new Structs.Planet[] (plRadii.length);
 
@@ -159,8 +194,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       planets[i].orbDist = plOrbDist[i];
       planets[i].category = plCategory[i];
 
-      uint16[5] memory plHues = id.getPlanetHues(i, plCategory[i]);
-      uint16 turbScale = id.getPlanetTurbScale(i, plCategory[i]);
+      uint16[5] memory plHues = ISystemData(systemDataAddress).getPlanetHues(id, i, plCategory[i]);
+      uint16 turbScale = ISystemData(systemDataAddress).getPlanetTurbScale(id, i, plCategory[i]);
 
       planets[i].turbScale = turbScale;
       planets[i].hueA = plHues[0];

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import './Structs.sol';
-import './SystemName.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
 
@@ -14,15 +13,13 @@ import './ToColor.sol';
 // TODO: Figure out the habitable zone range
 // TODO: Try to make rocky planets look more different
 // TODO: Fix URI attributes
-// TODO: Look at planet layout/scaling again... Slightly upping the max gas planet size seems to make things too crowded
-// TODO: Figure out if we need 
+// TODO: Make system.category int (and) probably remove from system struct
 
 
-library SystemData {
+contract SystemData {
 
   using ToColor for bytes3;
   using Uint2Str for uint16;
-  using SystemName for uint256;
 
   function getStarRadius(uint256 id) external pure returns (uint16 starRadius) {
     bytes32 seed = bytes32(id);

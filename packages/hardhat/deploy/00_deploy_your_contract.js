@@ -19,17 +19,17 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-  const systemName = await deploy("SystemName", {
-    from: deployer,
-    log: true,
-  });
-
   const systemData = await deploy("SystemData", {
     from: deployer,
     log: true
   });
 
-  const returnSvg = await deploy("ReturnSvg", {
+  const systemName = await deploy("SystemName", {
+    from: deployer,
+    log: true,
+  });
+
+  const returnSystemSvg = await deploy("ReturnSystemSvg", {
     from: deployer,
     log: true,
     libraries: {
@@ -49,12 +49,15 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   await deploy("YourCollectible", {
     from: deployer,
     log: true,
+    args: [
+      structs.address,
+      systemData.address,
+      systemName.address,
+      returnSystemSvg.address,
+    ],
     libraries: {
       Structs: structs.address,
       Trigonometry: trigonometry.address,
-      SystemData: systemData.address,
-      ReturnSvg: returnSvg.address,
-      SystemName: systemName.address
     }
   });
   
