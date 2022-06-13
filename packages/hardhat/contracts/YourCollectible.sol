@@ -23,24 +23,25 @@ interface IReturnSystemSvg {
 }
 
 interface ISystemName {
-  function generateSystemName(uint256 id) external pure returns (string memory);
+  function generateSystemName(
+    bytes32 randomish
+  ) external pure returns (
+    string memory
+  );
 }
 
-interface ISystemData {
-  function getStarRadius(uint256 id) external pure returns (uint16);
-  function getStarCategory(uint16 starRadius) external pure returns (string memory);
-  function getStarHue(uint256 id, uint16 starRadius) external pure returns (uint16);
-  function getPlanetRadii(uint256 id, uint16 nPlanets) external pure returns (uint16[] memory);
-  function getPlanetOrbitDistance(uint16 starRadius, uint16[] memory plRadii) external pure returns (uint16[] memory);
-  function getPlanetCategories(uint16[] memory plRadii, uint16[] memory plOrbDist) external pure returns (uint8[] memory);
-  function getNPlanets(uint256 id) external pure returns (uint16);
-  function getPlanetHues(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16[5] memory);
-  function getPlanetTurbScale(uint256 id, uint256 index, uint8 plCategory) external pure returns (uint16);
+interface IPopulateSystemLayoutStructs {
+  function populateSystemLayoutStructs(
+    bytes32 randomish
+  ) external view returns (
+    Structs.System memory system, Structs.Planet[] memory
+  );
 }
 
 contract YourCollectible is ERC721Enumerable, Ownable {
 
   using Strings for uint256;
+  using Uint2Str for uint8;
   using Uint2Str for uint16;
   using Uint2Str for uint256;
   using HexStrings for uint160;
@@ -55,20 +56,23 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   uint256 public constant limit = 512;
   uint256 public constant curve = 1011;
   uint256 public price = 0.01 ether;
-  // the 1154th optimistic loogies cost 0.01 ETH, the 2306th cost 0.1ETH, the 3459th cost 1 ETH and the last ones cost 1.7 ETH
+
+  mapping (uint256 => bytes32) public randomish;
+
+  // event Image(string);
 
   address public structsAddress;
-  address public systemDataAddress;
+  address public populateSystemLayoutStructsAddress;
   address public systemNameAddress;
   address public returnSystemSvgAddress;
   constructor(
     address _structsAddress,
-    address _systemDataAddress,
+    address _populateSystemLayoutStructsAddress,
     address _systemNameAddress,
     address _returnSystemSvgAddress
   ) ERC721("Exos", "EXOS") {
     structsAddress = _structsAddress;
-    systemDataAddress = _systemDataAddress;
+    populateSystemLayoutStructsAddress = _populateSystemLayoutStructsAddress;
     systemNameAddress = _systemNameAddress;
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
@@ -84,37 +88,35 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       
       price = (price * curve) / 1000;
 
-      // uint256 id = _tokenIds.current();
-      uint256 id = uint256(keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), msg.value, block.timestamp )));
+      uint256 id = _tokenIds.current();
+      randomish[id] = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), msg.value, block.timestamp ));
 
       _mint(msg.sender, id);
 
       (bool success, ) = recipient.call{value: msg.value}("");
       require(success, "could not send");
 
-      // _tokenIds.increment();
+      _tokenIds.increment();
       
       return id;
   }
-  
-  function tokenURI(uint256 id) public view override returns (string memory) {
+
+    function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
 
-      // (Structs.System memory system, Structs.Planet[] memory planets) = SystemData.generateSystemData(id);
+      (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
       
       string memory description = string(abi.encodePacked(
-        // system.name,
-        'foo',
+        system.name,
         ' is a ',
-        // system.category,
-        'foo',
+        system.category,
         ' star with ', 
-        // planets.length.uint2Str(),
-        'foo',
+        planets.length.uint2Str(),
         ' planets.'
       ));
 
-      string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
+      string memory image = generateSVGofToken(system, planets);
+      bytes memory attributes = populateNFTAttributes(system, planets);
 
       return
           string(
@@ -124,22 +126,16 @@ contract YourCollectible is ERC721Enumerable, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              // system.name,
+                              system.name,
                               '", "description":"',
                               description,
                               '", "external_url":"https://foo.com/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "star_type", "value": "',
-                              // system.category,
-                              'foo',
-                              '"},{"trait_type": "planet_count", "value": "',
-                              // planets.length.uint2Str(),
-                              'foo',
-                              '"}], "owner":"',
-                              // (uint160(ownerOf(id))).toHexString(20),
-                              'foo',
+                              '", ',
+                              attributes,
+                              ' "owner":"',
+                              (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
-                              'data:image/svg+xml;base64,',
                               image,
                               '"}'
                           )
@@ -149,63 +145,123 @@ contract YourCollectible is ERC721Enumerable, Ownable {
           );
   }
 
-                              //   '", "attributes": [{"trait_type": "color", "value": "#',
-                              // color[id].toColor(),
-                              // '"},{"trait_type": "chubbiness", "value": ',
-                              // uint2str(chubbiness[id]),
-                              // '}], "owner":"',
+  function generateSVGofToken(Structs.System memory system, Structs.Planet[] memory planets) internal view returns (string memory svg) {
 
-  function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
-
-    string memory svg = string(abi.encodePacked(
-      '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
-        renderTokenById(id),
-      '</svg>'
+    svg = string(abi.encodePacked(
+      'data:image/svg+xml;base64,',
+      Base64.encode(bytes(abi.encodePacked(
+        '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
+          renderToken(system, planets),
+        '</svg>'
+      )))
     ));
+
+    // emit Image(svg);
 
     return svg;
   }
+  
+  // function tokenURI(uint256 id) public view override returns (string memory) {
+  //     require(_exists(id), "not exist");
+
+  //     (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
+      
+  //     string memory description = string(abi.encodePacked(
+  //       system.name,
+  //       ' is a ',
+  //       system.category,
+  //       ' star with ', 
+  //       planets.length.uint2Str(),
+  //       ' planets.'
+  //     ));
+
+  //     string memory image = Base64.encode(bytes(generateSVGofToken(system, planets)));
+  //     bytes memory attributes = populateNFTAttributes(system, planets);
+
+  //     return
+  //         string(
+  //             abi.encodePacked(
+  //               'data:application/json;base64,',
+  //               Base64.encode(
+  //                   bytes(
+  //                         abi.encodePacked(
+  //                             '{"name":"',
+  //                             system.name,
+  //                             '", "description":"',
+  //                             description,
+  //                             '", "external_url":"https://foo.com/',
+  //                             id.toString(),
+  //                             '", ',
+  //                             attributes,
+  //                             ' "owner":"',
+  //                             (uint160(ownerOf(id))).toHexString(20),
+  //                             '", "image": "',
+  //                             'data:image/svg+xml;base64,',
+  //                             image,
+  //                             '"}'
+  //                         )
+  //                       )
+  //                   )
+  //             )
+  //         );
+  // }
+
+  // function generateSVGofToken(Structs.System memory system, Structs.Planet[] memory planets) internal view returns (string memory) {
+
+  //   string memory svg = string(abi.encodePacked(
+  //     '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
+  //       renderToken(system, planets),
+  //     '</svg>'
+  //   ));
+
+  //   return svg;
+  // }
 
   // Visibility is `public` to enable it being called by other contracts for composition.
-  function renderTokenById(uint256 id) public view returns (string memory) {
-    (Structs.System memory system, Structs.Planet[] memory planets) = populateSystemLayoutData(id);
-    // string memory render = system.returnSystemSvg(planets);
+  function renderToken(Structs.System memory system, Structs.Planet[] memory planets) public view returns (string memory) {
+
     string memory render = IReturnSystemSvg(returnSystemSvgAddress).returnSystemSvg(system, planets);
     
     return render;
   }
 
-  function populateSystemLayoutData(uint256 id) public view returns (Structs.System memory system, Structs.Planet[] memory) {
-    system.name = ISystemName(systemNameAddress).generateSystemName(id);
+  function populateNFTAttributes(Structs.System memory system, Structs.Planet[] memory planets) internal pure returns (bytes memory attributes) {
 
-    system.radius = ISystemData(systemDataAddress).getStarRadius(id);
-    system.hue = ISystemData(systemDataAddress).getStarHue(id, system.radius);
-    system.category = ISystemData(systemDataAddress).getStarCategory(system.radius);
+    attributes = abi.encodePacked(
+      '"attributes": [{"trait_type": "star_type", "value": "',
+      system.category,
+      '"},{"trait_type": "planets", "value": "',
+      planets.length.uint2Str(),
+      '"},{"trait_type": "habitable_world_count", "value": "',
+      system.nHabitable.uint2Str(),
+      '"},{"trait_type": "rocky_planet_count", "value": "',
+      system.nRocky.uint2Str(),
+      '"},{"trait_type": "gas_giant_count", "value": "',
+      system.nGas.uint2Str(),
+      '"}],'
+    );
 
-    uint16 nPlanets = ISystemData(systemDataAddress).getNPlanets(id);
-    uint16[] memory plRadii = ISystemData(systemDataAddress).getPlanetRadii(id, nPlanets);
-    uint16[] memory plOrbDist = ISystemData(systemDataAddress).getPlanetOrbitDistance(system.radius, plRadii);
-    uint8[] memory plCategory = ISystemData(systemDataAddress).getPlanetCategories(plRadii, plOrbDist);
-    
-    Structs.Planet[] memory planets = new Structs.Planet[] (plRadii.length);
-
-    for (uint i=0; i<plRadii.length; i++) {
-      planets[i].radius = plRadii[i];
-      planets[i].orbDist = plOrbDist[i];
-      planets[i].category = plCategory[i];
-
-      uint16[5] memory plHues = ISystemData(systemDataAddress).getPlanetHues(id, i, plCategory[i]);
-      uint16 turbScale = ISystemData(systemDataAddress).getPlanetTurbScale(id, i, plCategory[i]);
-
-      planets[i].turbScale = turbScale;
-      planets[i].hueA = plHues[0];
-      planets[i].hueB = plHues[1];
-      planets[i].hueC = plHues[2];
-      planets[i].hueD = plHues[3];
-      planets[i].hueE = plHues[4];
-    }
-
-    return (system, planets);
+    return attributes;
   }
+
+  // function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+
+  //   string memory svg = string(abi.encodePacked(
+  //     '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
+  //       renderTokenById(id),
+  //     '</svg>'
+  //   ));
+
+  //   return svg;
+  // }
+
+  // // Visibility is `public` to enable it being called by other contracts for composition.
+  // function renderTokenById(uint256 id) public view returns (string memory) {
+  //   (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
+  //   // string memory render = system.returnSystemSvg(planets);
+  //   string memory render = IReturnSystemSvg(returnSystemSvgAddress).returnSystemSvg(system, planets);
+    
+  //   return render;
+  // }
 
 }

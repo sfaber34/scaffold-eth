@@ -19,14 +19,27 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-  const systemData = await deploy("SystemData", {
-    from: deployer,
-    log: true
-  });
-
   const systemName = await deploy("SystemName", {
     from: deployer,
     log: true,
+  });
+
+  const systemData = await deploy("SystemData", {
+    from: deployer,
+    log: true,
+    // args: [
+    //   systemName.address
+    // ],
+  });
+
+  const populateSystemLayoutStructs = await deploy("PopulateSystemLayoutStructs", {
+    from: deployer,
+    log: true,
+    args: [
+      structs.address,
+      systemData.address,
+      systemName.address
+    ],
   });
 
   const returnSystemSvg = await deploy("ReturnSystemSvg", {
@@ -38,20 +51,20 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     }
   });
 
-  // const test = await deploy("Test", {
-  //   from: deployer,
-  //   log: true,
-  //   libraries: {
-  //     Structs: structs.address
-  //   }
-  // });
+  const test = await deploy("Test", {
+    from: deployer,
+    log: true,
+    libraries: {
+      Structs: structs.address
+    }
+  });
 
   await deploy("YourCollectible", {
     from: deployer,
     log: true,
     args: [
       structs.address,
-      systemData.address,
+      populateSystemLayoutStructs.address,
       systemName.address,
       returnSystemSvg.address,
     ],

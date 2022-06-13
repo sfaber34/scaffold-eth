@@ -5,34 +5,7 @@ import './Structs.sol';
 // import './ToColor.sol';
 import "hardhat/console.sol";
 
-interface ISystemData {
-  function createSystem(uint256) external view returns (Structs.System memory, Structs.Planet[] memory);
-}
-
 contract Test {
-
-  Structs.System[] public systems;
-  Structs.Planet[] public planets;
-
-  bytes32 public predictableRandomA;
-  bytes32 public predictableRandomB;
-  uint256 public prToUint;
-  bytes1 public b1;
-  bytes2 public b2;
-  bytes3 public b3;
-  uint8 public u8;
-  uint16 public u16;
-
-    function prTest() public {
-      predictableRandomA = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), block.timestamp ));
-      prToUint = uint256(predictableRandomA);
-      predictableRandomB = bytes32(prToUint);
-
-      b1 = bytes1(predictableRandomA[0]);
-      b2 = bytes2(predictableRandomA[0]);
-      b3 = ( bytes2(predictableRandomA[0]) | ( bytes2(predictableRandomA[1]) >> 8 ) | ( bytes3(predictableRandomA[2]) >> 16 ) );
-      u8 = uint8(bytes1(predictableRandomA[0]));
-      u16 = uint16(bytes2(predictableRandomA[0]));
-    }  
-
+  bytes32 public seed = 0x6c6309347ce858a4a9cd95110ae4be03e0018a688c8235b691e0b3391e72b9d6;
+  bytes2 public test = bytes2(seed[0]) | ( bytes2(seed[1]) >> 8 );
 }

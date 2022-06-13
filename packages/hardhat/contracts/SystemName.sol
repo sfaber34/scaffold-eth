@@ -7,7 +7,7 @@ contract SystemName {
 
   using ToColor for bytes3;
 
-  function generateSystemName(uint256 id) external pure returns (string memory) {
+  function generateSystemName(bytes32 randomish) external pure returns (string memory) {
     string[49] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
@@ -33,16 +33,14 @@ contract SystemName {
       'Locus'
     ];
 
-    bytes32 seed = bytes32(id);
-
     string memory name = string(abi.encodePacked(
-      greekAlphabet[uint8(bytes1(seed[0])) % greekAlphabet.length],
+      greekAlphabet[uint8(bytes1(randomish[0])) % greekAlphabet.length],
       ' ',
-      parentName[uint8(bytes1(seed[1])) % parentName.length],
+      parentName[uint8(bytes1(randomish[1])) % parentName.length],
       ' ',
-      tert[uint8(bytes1(seed[2])) % tert.length],
+      tert[uint8(bytes1(randomish[2])) % tert.length],
       '-',
-      ( bytes2(seed[29]) | ( bytes2(seed[30]) >> 8 ) | ( bytes3(seed[31]) >> 16 ) ).toColor()
+      ( bytes2(randomish[3]) | ( bytes2(randomish[4]) >> 8 ) | ( bytes3(randomish[5]) >> 16 ) ).toColor()
     ));
 
     return name; 

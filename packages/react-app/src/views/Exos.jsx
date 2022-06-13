@@ -18,12 +18,19 @@ function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBU
         let startIndex = totalSupply - 1 - perPage * (page - 1);
         for (let tokenIndex = startIndex; tokenIndex > startIndex - perPage && tokenIndex >= 0; tokenIndex--) {
           try {
-            if (DEBUG) console.log("Getting token index", tokenIndex);
+            // if (DEBUG) console.log("Getting token index", tokenIndex);
+            // const tokenId = await readContracts.YourCollectible.tokenByIndex(tokenIndex);
+            // if (DEBUG) console.log("Getting Loogie tokenId: ", tokenId);
+            // const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
+            // if (DEBUG) console.log("tokenURI: ", tokenURI);
+            // const jsonManifestString = atob(tokenURI.substring(29));
+            console.log("Getting token index", tokenIndex);
             const tokenId = await readContracts.YourCollectible.tokenByIndex(tokenIndex);
-            if (DEBUG) console.log("Getting Loogie tokenId: ", tokenId);
+            console.log("Getting Loogie tokenId: ", tokenId);
             const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-            if (DEBUG) console.log("tokenURI: ", tokenURI);
+            console.log("tokenURI: ", tokenURI);
             const jsonManifestString = atob(tokenURI.substring(29));
+            console.log("jsonManifestString: ", jsonManifestString);
 
             try {
               const jsonManifest = JSON.parse(jsonManifestString);
@@ -50,13 +57,20 @@ function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBU
         <div>
           <List
             grid={{
+              // gutter: 16,
+              // xs: 1,
+              // sm: 2,
+              // md: 2,
+              // lg: 3,
+              // xl: 4,
+              // xxl: 4,
               gutter: 16,
-              xs: 1,
+              xs: 2,
               sm: 2,
               md: 2,
-              lg: 3,
-              xl: 4,
-              xxl: 4,
+              lg: 2,
+              xl: 2,
+              xxl: 2,
             }}
             pagination={{
               total: totalSupply,
