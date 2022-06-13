@@ -59,7 +59,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
   mapping (uint256 => bytes32) public randomish;
 
-  // event Image(string);
+  event URIOnMint(string uri);
 
   address public structsAddress;
   address public populateSystemLayoutStructsAddress;
@@ -101,48 +101,51 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       return id;
   }
 
-    function tokenURI(uint256 id) public view override returns (string memory) {
-      require(_exists(id), "not exist");
+  function tokenURI(uint256 id) public view override returns (string memory uri) {
+    require(_exists(id), "not exist");
 
-      (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
-      
-      string memory description = string(abi.encodePacked(
-        system.name,
-        ' is a ',
-        system.category,
-        ' star with ', 
-        planets.length.uint2Str(),
-        ' planets.'
-      ));
+    (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
+    
+    string memory description = string(abi.encodePacked(
+      system.name,
+      ' is a ',
+      system.category,
+      ' star with ', 
+      planets.length.uint2Str(),
+      ' planets.'
+    ));
 
-      string memory image = generateSVGofToken(system, planets);
-      bytes memory attributes = populateNFTAttributes(system, planets);
+    string memory image = generateSVGofToken(system, planets);
+    bytes memory attributes = populateNFTAttributes(system, planets);
 
-      return
-          string(
+    uri = string(
+      abi.encodePacked(
+        'data:application/json;base64,',
+          Base64.encode(
+            bytes(
               abi.encodePacked(
-                'data:application/json;base64,',
-                Base64.encode(
-                    bytes(
-                          abi.encodePacked(
-                              '{"name":"',
-                              system.name,
-                              '", "description":"',
-                              description,
-                              '", "external_url":"https://foo.com/',
-                              id.toString(),
-                              '", ',
-                              attributes,
-                              ' "owner":"',
-                              (uint160(ownerOf(id))).toHexString(20),
-                              '", "image": "',
-                              image,
-                              '"}'
-                          )
-                        )
-                    )
+                  '{"name":"',
+                  system.name,
+                  '", "description":"',
+                  description,
+                  '", "external_url":"https://foo.com/',
+                  id.toString(),
+                  '", ',
+                  attributes,
+                  ' "owner":"',
+                  (uint160(ownerOf(id))).toHexString(20),
+                  '", "image": "',
+                  image,
+                  '"}'
+                  )
+                )
               )
-          );
+            )
+        );
+
+    // emit URIOnMint(uri);
+
+    return uri;
   }
 
   function generateSVGofToken(Structs.System memory system, Structs.Planet[] memory planets) internal view returns (string memory svg) {
@@ -156,7 +159,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       )))
     ));
 
-    // emit Image(svg);
+    
 
     return svg;
   }
