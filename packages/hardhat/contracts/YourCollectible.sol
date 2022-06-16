@@ -101,7 +101,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       return id;
   }
 
-  function tokenURI(uint256 id) public view override returns (string memory uri) {
+  function getTokenURI(uint256 id, bool transparentBackground) public view returns (string memory uri){
     require(_exists(id), "not exist");
 
     (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
@@ -115,7 +115,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       ' planets.'
     ));
 
-    string memory image = generateSVGofToken(system, planets);
+    string memory image = generateSVGofToken(system, planets, transparentBackground);
     bytes memory attributes = populateNFTAttributes(system, planets);
 
     uri = string(
@@ -148,12 +148,18 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     return uri;
   }
 
-  function generateSVGofToken(Structs.System memory system, Structs.Planet[] memory planets) internal view returns (string memory svg) {
+  function tokenURI(uint256 id) public view override returns (string memory uri) {
+    return getTokenURI(id, false);
+  }
+
+  function generateSVGofToken(Structs.System memory system, Structs.Planet[] memory planets, bool transparentBackground) internal view returns (string memory svg) {
 
     svg = string(abi.encodePacked(
       'data:image/svg+xml;base64,',
       Base64.encode(bytes(abi.encodePacked(
-        '<svg width="1000" height="1000" style="background: #000000;" xmlns="http://www.w3.org/2000/svg">',
+        '<svg width="1000" height="1000" style="background: ',
+        transparentBackground ? '#00000000;' : '#000000;',
+        '" xmlns="http://www.w3.org/2000/svg">',
           renderToken(system, planets),
         '</svg>'
       )))
