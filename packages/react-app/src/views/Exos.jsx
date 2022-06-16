@@ -27,7 +27,7 @@ function Exos({ readContracts, mainnetProvider, blockExplorer, totalSupply, DEBU
             console.log("Getting token index", tokenIndex);
             const tokenId = await readContracts.YourCollectible.tokenByIndex(tokenIndex);
             console.log("Getting Loogie tokenId: ", tokenId);
-            const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
+            const tokenURI = await readContracts.YourCollectible.getTokenURI(tokenId, true);
             console.log("tokenURI: ", tokenURI);
             const jsonManifestString = atob(tokenURI.substring(29));
             console.log("jsonManifestString: ", jsonManifestString);
