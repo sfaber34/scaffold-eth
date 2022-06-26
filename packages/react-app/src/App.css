@@ -18,3 +18,28 @@ html body,
 html .ant-menu-overflow {
   background-color: rgb(21 21 21);
 }
+
+canvas {
+  z-index: 0;
+  display: block;
+  position: fixed;
+}
+
+div.system-img-container {
+  z-index: 1;
+    position: fixed;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+img.system-img {
+  position: relative;
+  display: block;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+  transition: height 1s ease-in, opacity 0.5s ease-out;
+}
