@@ -1,4 +1,5 @@
 import { Alert, Button, Col, Menu, Row } from "antd";
+import { StarField, useStarField, StarFieldState, createStarsState } from "starfield-react";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -9,7 +10,7 @@ import {
   useUserProviderAndSigner,
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
 import {
@@ -55,8 +56,7 @@ const { ethers } = require("ethers");
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-const BufferList = require('bl/BufferList');
-
+const BufferList = require("bl/BufferList");
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
@@ -170,7 +170,7 @@ function App(props) {
   const yourBalance = balance && balance.toNumber && balance.toNumber();
   const [yourCollectibles, setYourCollectibles] = useState();
   const [transferToAddresses, setTransferToAddresses] = useState({});
-
+  const [warpWhenReady, setWarpWhenReady] = useState(false);
   useEffect(() => {
     const updateYourCollectibles = async () => {
       const collectibleUpdate = [];
@@ -193,7 +193,12 @@ function App(props) {
           console.log(e);
         }
       }
+      console.log(collectibleUpdate);
       setYourCollectibles(collectibleUpdate.reverse());
+      if (warpWhenReady) {
+        setCurrentSystemId(collectibleUpdate[0].id.toNumber());
+        setWarpWhenReady(false);
+      }
     };
     updateYourCollectibles();
   }, [address, yourBalance]);
@@ -262,10 +267,111 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
+  const [system, setSystem] = useState(null);
+
+  const [time, setTime] = useState(0);
+  const interval = useRef(null);
+  const [hasReachedLimit, setHasReachedLimit] = useState(true);
+
+  const [speed, setSpeed] = useState(0);
+  const [moving, setMoving] = useState(false);
+  useEffect(() => {
+    if (moving && speed <= 30) {
+      setSpeed(speed + 1);
+      if (speed >= 30) {
+        setHasReachedLimit(true);
+      }
+    }
+    if (!moving && speed > 0) {
+      setSpeed(speed - 1);
+      if (speed <= 1) {
+        setHasReachedLimit(true);
+      }
+    }
+  }, [time]);
+
+  useEffect(() => {
+    if (!hasReachedLimit) {
+      if (moving) {
+        interval.current = setInterval(() => {
+          setTime(t => t + 70);
+        }, 70);
+      } else if (!moving) {
+        interval.current = setInterval(() => {
+          setTime(t => t + 100);
+        }, 100);
+      }
+    } else {
+      clearInterval(interval.current);
+      interval.current = null;
+      setTime(0);
+    }
+
+    return () => {
+      clearInterval(interval.current);
+    };
+  }, [hasReachedLimit]);
+
+  const getSystemURI = async systemId => {
+    const systemURI = await await readContracts.YourCollectible.getTokenURI(systemId, true);
+    return systemURI;
+  };
+
+  const [height, setHeight] = useState(1);
+  const [opacity, setOpacity] = useState(0);
+  const [currentSystemId, setCurrentSystemId] = useState(null);
+  useEffect(() => {
+    const warpToSystem = async systemId => {
+      setOpacity(0);
+      setHasReachedLimit(false);
+      setMoving(true);
+      setTimeout(() => setHeight(1), 500);
+      const uri = await getSystemURI(systemId, true);
+      const jsonManifestString = atob(uri.substring(29));
+      const jsonManifest = JSON.parse(jsonManifestString);
+      setSystem(jsonManifest);
+      setTimeout(async () => {
+        setHasReachedLimit(false);
+        setMoving(false);
+        setTimeout(() => {
+          setOpacity(1);
+          setHeight(window.innerHeight);
+        }, 1100);
+      }, 4000);
+    };
+    if (typeof currentSystemId == "number") {
+      warpToSystem(currentSystemId);
+    }
+  }, [currentSystemId]);
+
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
   return (
     <div className="App">
+      <div className="system-img-container">
+        {system ? (
+          <img
+            className="system-img"
+            src={system.image}
+            alt={system.name}
+            style={{ height: height, opacity: opacity }}
+          />
+        ) : (
+          ""
+        )}
+      </div>
+      <StarField
+        id="starfield"
+        width={window.innerWidth}
+        height={window.innerHeight}
+        speed={speed * 4}
+        count={120}
+        fps={60}
+        starRatio={365}
+        clear={true}
+        starSize={2}
+        starShape={"square"}
+      />
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       <NetworkDisplay
@@ -274,11 +380,26 @@ function App(props) {
         selectedChainId={selectedChainId}
         targetNetwork={targetNetwork}
       />
-      <Menu style={{ textAlign: "center" }} selectedKeys={[location.pathname]} mode="horizontal">
-        <Menu.Item key="/">
-          <Link to="/">Home</Link>
+      <Menu
+        style={{ textAlign: "left", position: "absolute", zIndex: 2 }}
+        selectedKeys={[currentSystemId]}
+        mode="vertical"
+      >
+        <Menu.Item key="mint" onClick={async () => {
+            const priceRightNow = await readContracts.YourCollectible.price();
+            try {
+              const txCur = await tx(
+                writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 }),
+              ); // 300000
+              await txCur.wait();
+              setWarpWhenReady(true);
+            } catch (e) {
+              console.log("mint failed", e);
+            }
+          }}>
+          Locate New System
         </Menu.Item>
-        <Menu.Item key="/yourExos">
+        {/* <Menu.Item key="/yourExos">
           <Link to="/yourExos">Your Exos</Link>
         </Menu.Item>
         <Menu.Item key="/about">
@@ -286,25 +407,35 @@ function App(props) {
         </Menu.Item>
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
+        </Menu.Item> */}
+        <Menu.ItemGroup title="Located Systems">
+          {yourCollectibles
+            ? yourCollectibles.map(c => (
+                <Menu.Item
+                  key={c.id.toNumber()}
+                  onClick={() => {
+                    setCurrentSystemId(c.id.toNumber());
+                  }}
+                >
+                  {c.name}
+                </Menu.Item>
+              ))
+            : ""}
+        </Menu.ItemGroup>
       </Menu>
 
-      <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-        <div style={{ fontSize: 16 }}>
-          {/* <p>
-            Mint will load a system's data from the systemData JSON object in app.jsx and render an NFT.
-          </p> */}
-        </div>
-
-        <div style={{height: "10px"}}></div>
-        
+      {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32, position: "absolute", zIndex: 2 }}>
+        <div style={{ height: "10px" }}></div>
         <Button
           type="primary"
           onClick={async () => {
             const priceRightNow = await readContracts.YourCollectible.price();
             try {
-              const txCur = await tx(writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 })); // 300000
+              const txCur = await tx(
+                writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 }),
+              ); // 300000
               await txCur.wait();
+              setWarpWhenReady(true);
             } catch (e) {
               console.log("mint failed", e);
             }
@@ -312,21 +443,27 @@ function App(props) {
         >
           MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)}
         </Button>
-
-        <p style={{ fontWeight: "bold" }}>
-          { loogiesLeft } left
-        </p>
-      </div>
+        <p style={{ fontWeight: "bold" }}>{loogiesLeft} left</p>
+        <Button
+          type="primary"
+          onClick={() => {
+            console.log("setting moving", moving);
+            setCurrentSystemId(0);
+          }}
+        >
+          Move to star
+        </Button>
+      </div> */}
 
       <Switch>
         <Route exact path="/">
-          <Exos
+          {/* <Exos
             readContracts={readContracts}
             mainnetProvider={mainnetProvider}
             blockExplorer={blockExplorer}
             totalSupply={totalSupply}
             DEBUG={DEBUG}
-          />
+          /> */}
         </Route>
         <Route exact path="/yourExos">
           <YourExos
@@ -398,16 +535,8 @@ function App(props) {
           />
         </Route>
       </Switch>
-
-      <div style={{ maxWidth: 820, margin: "auto", marginTop: 32 }}>
-        🛠 built with <a href="https://github.com/scaffold-eth/scaffold-eth" target="_blank">🏗 scaffold-eth</a>
-        🍴 <a href="https://github.com/scaffold-eth/scaffold-eth" target="_blank">Fork this repo</a> and build a cool SVG NFT!
-      </div>
-
-      {/* <ThemeSwitch /> */}
-
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
+      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 2 }}>
         <Account
           address={address}
           localProvider={localProvider}
@@ -421,48 +550,7 @@ function App(props) {
         />
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
       </div>
-
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
-
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
-      </div>
     </div>
   );
 }
-
 export default App;
