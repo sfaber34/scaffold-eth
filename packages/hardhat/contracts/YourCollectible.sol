@@ -13,29 +13,35 @@ import './Uint2Str.sol';
 import './ToColor.sol';
 
 
+interface ISystemName {
+
+  function generateSystemName(
+    bytes32 randomish
+  ) external pure returns (
+    string memory
+  );
+
+}
+
+interface IPopulateSystemLayoutStructs {
+  
+  function populateSystemLayoutStructs(
+    bytes32 randomish
+  ) external view returns (
+    Structs.System memory system, Structs.Planet[] memory
+  );
+  
+}
+
 interface IReturnSystemSvg {
+
   function returnSystemSvg(
     Structs.System memory system,
     Structs.Planet[] memory planets
   ) external pure returns (
     string memory
   );
-}
 
-interface ISystemName {
-  function generateSystemName(
-    bytes32 randomish
-  ) external pure returns (
-    string memory
-  );
-}
-
-interface IPopulateSystemLayoutStructs {
-  function populateSystemLayoutStructs(
-    bytes32 randomish
-  ) external view returns (
-    Structs.System memory system, Structs.Planet[] memory
-  );
 }
 
 contract YourCollectible is ERC721Enumerable, Ownable {
@@ -59,8 +65,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
   mapping (uint256 => bytes32) public randomish;
 
-  event URIOnMint(string uri);
-
   address public structsAddress;
   address public populateSystemLayoutStructsAddress;
   address public systemNameAddress;
@@ -77,6 +81,14 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
 
+  // function updateReturnSystemSvgAddress(address newAddress) public {
+  //   returnSystemSvgAddress = newAddress;
+  // }
+
+  // function updateSystemNameAddress(address newAddress) public {
+  //   systemNameAddress = newAddress;
+  // } 
+
   function mintItem()
       public
       payable
@@ -89,7 +101,7 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       price = (price * curve) / 1000;
 
       uint256 id = _tokenIds.current();
-      randomish[id] = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), msg.value, block.timestamp ));
+      randomish[id] = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
 
       _mint(msg.sender, id);
 
@@ -143,7 +155,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
             )
         );
 
-    // emit URIOnMint(uri);
 
     return uri;
   }

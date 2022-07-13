@@ -8,6 +8,13 @@ contract SystemName {
   using ToColor for bytes3;
 
   function generateSystemName(bytes32 randomish) external pure returns (string memory) {
+    string[24] memory greekAlphabet = [
+      'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 
+      'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 
+      'Xi', 'Omikron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 
+      'Phi', 'Chi', 'Psi', 'Omega'
+    ]; 
+    
     string[49] memory parentName = [
       'Surya', 'Chimera', 'Vulcan', 'Odin', 'Osiris', 
       'Grendel', 'Nephilim', 'Leviathan', 'Cepheus', 'Titus', 
@@ -19,13 +26,6 @@ contract SystemName {
       'Grigori', 'Gorgon', 'Mazoku', 'Qin', 'Raum', 'Chax',
       'Tengu', 'Ur', 'Vepar', 'Lazarus'
     ];
-
-    string[24] memory greekAlphabet = [
-      'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 
-      'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 
-      'Xi', 'Omikron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 
-      'Phi', 'Chi', 'Psi', 'Omega'
-    ]; 
 
     string[12] memory tert = [
       'Sector', 'Region', 'Quadrant', 'Reach', 'Zone', 'Tract',
