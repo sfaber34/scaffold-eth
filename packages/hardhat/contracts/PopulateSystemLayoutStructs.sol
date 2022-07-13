@@ -70,10 +70,10 @@ contract PopulateSystemLayoutStructs {
   }
 
 
-  function getSystemCoordinates(bytes32 randomish) public pure returns (uint8[2] memory coordinates) {
+  function getSystemCoordinates(bytes32 randomish) public pure returns (uint16[2] memory coordinates) {
     
-    coordinates[0] = uint8(bytes1(randomish[3]));
-    coordinates[1] = uint8(bytes1(randomish[4]));
+    coordinates[0] = uint16(bytes2(randomish[6]) | ( bytes2(randomish[7]) >> 8 ));
+    coordinates[1] = uint16(bytes2(randomish[8]) | ( bytes2(randomish[9]) >> 8 ));
 
     return coordinates;
   }

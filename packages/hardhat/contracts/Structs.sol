@@ -5,7 +5,7 @@ library Structs {
 
   struct System {
     string name; // The system/star name
-    uint8[2] coordinates;
+    uint16[2] coordinates;
     uint16 radius; // Star radius (pixels)
     uint16 hue; // Star Hue
     string category; // Star type: main sequence or dwarf
