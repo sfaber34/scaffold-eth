@@ -59,9 +59,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   // all funds go to buidlguidl.eth
   address payable public constant recipient = payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
 
-  uint256 public constant limit = 512;
   uint256 public constant curve = 1011;
-  uint256 public price = 0.01 ether;
+  uint256 public price = 0.005 ether;
 
   mapping (uint256 => bytes32) public randomish;
 
@@ -94,8 +93,6 @@ contract YourCollectible is ERC721Enumerable, Ownable {
       payable
       returns (uint256)
   {
-      // require(_tokenIds.current() < limit, "DONE MINTING");
-      require(totalSupply() < limit, "DONE MINTING");
       require(msg.value >= price, "NOT ENOUGH");
       
       price = (price * curve) / 1000;

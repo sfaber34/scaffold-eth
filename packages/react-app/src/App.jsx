@@ -158,7 +158,7 @@ function App(props) {
 
   const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
   if (DEBUG) console.log("🤗 totalSupply:", totalSupply);
-  const loogiesLeft = 512 - totalSupply;
+  // const loogiesLeft = 512 - totalSupply;
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
@@ -397,7 +397,7 @@ function App(props) {
               console.log("mint failed", e);
             }
           }}>
-          Locate New System
+          Locate New System (Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)})
         </Menu.Item>
         {/* <Menu.Item key="/yourExos">
           <Link to="/yourExos">Your Exos</Link>
