@@ -13,16 +13,6 @@ import './Uint2Str.sol';
 import './ToColor.sol';
 
 
-interface ISystemName {
-
-  function generateSystemName(
-    bytes32 randomish
-  ) external pure returns (
-    string memory
-  );
-
-}
-
 interface IPopulateSystemLayoutStructs {
   
   function populateSystemLayoutStructs(
@@ -64,19 +54,13 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
   mapping (uint256 => bytes32) public randomish;
 
-  address public structsAddress;
   address public populateSystemLayoutStructsAddress;
-  address public systemNameAddress;
   address public returnSystemSvgAddress;
   constructor(
-    address _structsAddress,
     address _populateSystemLayoutStructsAddress,
-    address _systemNameAddress,
     address _returnSystemSvgAddress
   ) ERC721("Exos", "EXOS") {
-    structsAddress = _structsAddress;
     populateSystemLayoutStructsAddress = _populateSystemLayoutStructsAddress;
-    systemNameAddress = _systemNameAddress;
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
 

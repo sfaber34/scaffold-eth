@@ -19,18 +19,12 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
-  const systemName = await deploy("SystemName", {
-    from: deployer,
-    log: true,
-  });
-
   const populateSystemLayoutStructs = await deploy("PopulateSystemLayoutStructs", {
     from: deployer,
     log: true,
-    args: [
-      structs.address,
-      systemName.address
-    ],
+    libraries: {
+      Structs: structs.address
+    }
   });
 
   const returnSystemSvg = await deploy("ReturnSystemSvg", {
@@ -54,9 +48,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     from: deployer,
     log: true,
     args: [
-      structs.address,
       populateSystemLayoutStructs.address,
-      systemName.address,
       returnSystemSvg.address,
     ],
     libraries: {
@@ -64,6 +56,9 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
       Trigonometry: trigonometry.address,
     }
   });
+
+  const yourCollectible = await ethers.getContract("YourCollectible", deployer);
+  await yourCollectible.transferOwnership("0x38c772B96D73733F425746bd368B4B4435A37967");
   
 
   // Verify your contracts with Etherscan
