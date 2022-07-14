@@ -2,13 +2,14 @@
 pragma solidity ^0.8.0;
 
 library Structs {
-
+  
+  // since string will take up 1 slot so with this order the total slots consumed by the struct are 3 instead of 4
   struct System {
     string name; // The system/star name
+    string category; // Star type: main sequence or dwarf
     uint16[2] coordinates;
     uint16 radius; // Star radius (pixels)
     uint16 hue; // Star Hue
-    string category; // Star type: main sequence or dwarf
     uint8 nGas;
     uint8 nRocky;
     uint8 nHabitable;  
