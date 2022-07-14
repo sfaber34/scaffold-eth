@@ -46,8 +46,8 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  // all funds go to buidlguidl.eth
-  address payable public constant recipient = payable(0xa81a6a910FeD20374361B35C451a4a44F86CeD46);
+  // Funds to Exos treasury 
+  address payable public constant recipient = payable(0x859a0ef4b9D689623C8a83e7eEe7799Fa091976b);
 
   uint256 public constant curve = 1011;
   uint256 public price = 0.005 ether;
@@ -64,13 +64,13 @@ contract YourCollectible is ERC721Enumerable, Ownable {
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
 
-  // function updateReturnSystemSvgAddress(address newAddress) public {
-  //   returnSystemSvgAddress = newAddress;
-  // }
+  function updatePopulateSystemLayoutStructsAddress(address newAddress) public onlyOwner {
+    populateSystemLayoutStructsAddress = newAddress;
+  } 
 
-  // function updateSystemNameAddress(address newAddress) public {
-  //   systemNameAddress = newAddress;
-  // } 
+  function updateReturnSystemSvgAddress(address newAddress) public onlyOwner {
+    returnSystemSvgAddress = newAddress;
+  }
 
   function mintItem()
       public

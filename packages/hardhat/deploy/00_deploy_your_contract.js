@@ -58,8 +58,8 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
 
   const yourCollectible = await ethers.getContract("YourCollectible", deployer);
-  await yourCollectible.transferOwnership("0x38c772B96D73733F425746bd368B4B4435A37967");
-  
+  await yourCollectible.transferOwnership("0x38c772B96D73733F425746bd368B4B4435A37967"); 
+
 
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
