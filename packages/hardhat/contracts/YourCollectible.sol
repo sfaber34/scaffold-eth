@@ -53,9 +53,9 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   uint256 public price = 0.005 ether;
 
   mapping (uint256 => bytes32) public randomish;
-
-  address public populateSystemLayoutStructsAddress;
-  address public returnSystemSvgAddress;
+  // these are only set in constructor so should be immutable ot save gas
+  address public immutable populateSystemLayoutStructsAddress;
+  address public immutable returnSystemSvgAddress;
   constructor(
     address _populateSystemLayoutStructsAddress,
     address _returnSystemSvgAddress
@@ -86,11 +86,11 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       _mint(msg.sender, id);
 
+      _tokenIds.increment();
+
       (bool success, ) = recipient.call{value: msg.value}("");
       require(success, "could not send");
 
-      _tokenIds.increment();
-      
       return id;
   }
 
