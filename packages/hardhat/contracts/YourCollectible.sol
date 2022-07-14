@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -34,7 +35,12 @@ interface IReturnSystemSvg {
 
 }
 
-contract YourCollectible is ERC721Enumerable, Ownable {
+// custom errors save gas
+error INSUFFICIENT_AMOUNT();
+error TOKEN_TRANSFER_FAILURE();
+error INVALID_ID();
+
+contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
 
   using Strings for uint256;
   using Uint2Str for uint8;
@@ -53,9 +59,9 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   uint256 public price = 0.005 ether;
 
   mapping (uint256 => bytes32) public randomish;
-
-  address public populateSystemLayoutStructsAddress;
-  address public returnSystemSvgAddress;
+  // these are only set in constructor so should be immutable ot save gas
+  address public immutable populateSystemLayoutStructsAddress;
+  address public immutable returnSystemSvgAddress;
   constructor(
     address _populateSystemLayoutStructsAddress,
     address _returnSystemSvgAddress
@@ -75,9 +81,12 @@ contract YourCollectible is ERC721Enumerable, Ownable {
   function mintItem()
       public
       payable
+      nonReentrant
       returns (uint256)
-  {
-      require(msg.value >= price, "NOT ENOUGH");
+  {   
+      if (msg.value < price) {
+         revert INSUFFICIENT_AMOUNT();
+      }
       
       price = (price * curve) / 1000;
 
@@ -86,16 +95,19 @@ contract YourCollectible is ERC721Enumerable, Ownable {
 
       _mint(msg.sender, id);
 
-      (bool success, ) = recipient.call{value: msg.value}("");
-      require(success, "could not send");
-
       _tokenIds.increment();
-      
+
+      (bool success, ) = recipient.call{value: msg.value}("");
+      if (!success) {
+        revert TOKEN_TRANSFER_FAILURE();
+      }
       return id;
   }
 
   function getTokenURI(uint256 id, bool transparentBackground) public view returns (string memory uri){
-    require(_exists(id), "not exist");
+    if(!_exists(id)) {
+      revert INVALID_ID();
+    }
 
     (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
     

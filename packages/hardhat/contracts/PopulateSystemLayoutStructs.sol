@@ -32,8 +32,8 @@ contract PopulateSystemLayoutStructs {
     system.nHabitable = nHabitable;
     
     Structs.Planet[] memory planets = new Structs.Planet[] (plRadii.length);
-
-    for (uint i=0; i<plRadii.length; i++) {
+    // using unchecked to save gas
+    for (uint i=0; i<plRadii.length;) {
       planets[i].radius = plRadii[i];
       planets[i].orbDist = plOrbDist[i];
       planets[i].category = plCategory[i];
@@ -47,6 +47,9 @@ contract PopulateSystemLayoutStructs {
       planets[i].hueC = plHues[2];
       planets[i].hueD = plHues[3];
       planets[i].hueE = plHues[4];
+      unchecked {
+        ++ i;
+      }
     }
 
     return (system, planets);
@@ -159,14 +162,17 @@ contract PopulateSystemLayoutStructs {
 
     uint16[] memory plRadii = new uint16[] (nPlanets);
     uint8 nNonGas;
-    
-    for (uint i=0; i<nPlanets; i++) {
+    // using unchecked to save gas
+    for (uint i=0; i<nPlanets;) {
       plRadii[i] = uint16(bytes2(0x0000) | ( bytes2(randomish[i+13]) >> 8 )) % 24 + 10;
       // plRadii[i] = 33;
 
       // Keep track of n non-gas planets. Want at least 1 planet that players can land on
       if (plRadii[i] < 20) {
         nNonGas++;
+      }
+      unchecked {
+        ++ i;
       }
     }
 
@@ -186,8 +192,12 @@ contract PopulateSystemLayoutStructs {
     uint16 plDiamSum;  
 
     // Keep running sum of pixels that planets would occupy if stacked from edge of star outward
-    for (uint i=0; i<plRadii.length; i++) {
+    // using unchecked to save gas
+    for (uint i=0; i<plRadii.length;) {
       plDiamSum += plRadii[i] * 2;
+      unchecked {
+        ++ i;
+      }
     }
 
     // The number of pixels to add between each planet to spread them out evenly.
@@ -195,8 +205,12 @@ contract PopulateSystemLayoutStructs {
     
     plOrbDist[0] = starRadius + plRadii[0] + orbDeadSpace;
 
-    for (uint i=1; i<plRadii.length; i++) {
+    // using unchecked to save gas
+    for (uint i=1; i<plRadii.length;) {
       plOrbDist[i] = plOrbDist[i-1] + plRadii[i-1] + plRadii[i] + orbDeadSpace;
+      unchecked {
+        ++ i;
+      }
     }
 
     return plOrbDist;
@@ -208,7 +222,8 @@ contract PopulateSystemLayoutStructs {
     uint8[] memory plCategory = new uint8[] (plRadii.length);
     uint16[2] memory habitableBounds = [starRadius + 125, starRadius + 250];
 
-    for (uint i=0; i<plRadii.length; i++) {
+    // using unchecked to save gas
+    for (uint i=0; i<plRadii.length;) {
       // Gas Giant
       if (plRadii[i] > 19) {
         plCategory[i] = 0;
@@ -221,6 +236,9 @@ contract PopulateSystemLayoutStructs {
         else {
           plCategory[i] = 1;
         }
+      }
+      unchecked {
+        ++ i;
       }
     }
 
@@ -286,8 +304,8 @@ contract PopulateSystemLayoutStructs {
 
 
   function getPlanetCategoriesCounts(uint8[] memory plCategory) public pure returns (uint8 nGas, uint8 nRocky, uint8 nHabitable) {
-    
-    for (uint i=0; i<plCategory.length; i++) {
+    // using unchecked to save gas
+    for (uint i=0; i<plCategory.length;) {
       if (plCategory[i] == 0) {
         nGas++;
       }
@@ -296,6 +314,9 @@ contract PopulateSystemLayoutStructs {
       }
       else {
         nHabitable++;
+      }
+      unchecked {
+        ++ i;
       }
     }
 
