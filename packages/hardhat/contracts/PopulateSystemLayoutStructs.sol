@@ -152,7 +152,6 @@ contract PopulateSystemLayoutStructs {
   function getNPlanets(bytes32 randomish) public pure returns (uint16 nPlanets) {
  
     nPlanets = uint16(bytes2(0x0000) | ( bytes2(randomish[12]) >> 8 )) % 4 + 2;
-    // nPlanets = 5;
 
     return nPlanets;
   }
@@ -165,7 +164,6 @@ contract PopulateSystemLayoutStructs {
     // using unchecked to save gas
     for (uint i=0; i<nPlanets;) {
       plRadii[i] = uint16(bytes2(0x0000) | ( bytes2(randomish[i+13]) >> 8 )) % 24 + 10;
-      // plRadii[i] = 33;
 
       // Keep track of n non-gas planets. Want at least 1 planet that players can land on
       if (plRadii[i] < 20) {

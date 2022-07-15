@@ -335,7 +335,8 @@ function App(props) {
         setMoving(false);
         setTimeout(() => {
           setOpacity(1);
-          setHeight(window.innerHeight);
+          // <img class="system-img"> height must be multiple of 10 or some SVG animations are too fast in Chrome
+          setHeight(window.innerHeight - window.innerHeight % 10);
         }, 1100);
       }, 4000);
     };
@@ -541,6 +542,11 @@ function App(props) {
         />
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
       </div>
+      {/* <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
+        <Button
+          type="primary"
+        >View Collection</Button>
+      </div> */}
     </div>
   );
 }

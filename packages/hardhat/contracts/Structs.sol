@@ -7,18 +7,18 @@ library Structs {
   struct System {
     string name; // The system/star name
     string category; // Star type: main sequence or dwarf
-    uint16[2] coordinates;
+    uint16[2] coordinates; // Galactic x/y system coordinates
     uint16 radius; // Star radius (pixels)
     uint16 hue; // Star Hue
-    uint8 nGas;
-    uint8 nRocky;
-    uint8 nHabitable;  
+    uint8 nGas; // Number of gas planets
+    uint8 nRocky; // Number of rocky, mars-like worlds
+    uint8 nHabitable; // Number of habitable, earth-like worlds
   }
 
   struct Planet {
     uint16 radius; // Planet radius (pixels)
     uint16 orbDist; // Planet orbit distance; radial distance from star centroid to planet centroid (pixels)
-    uint8 category;
+    uint8 category; 
     uint16 hueA; // Base planet hue
     uint16 hueB; // Secondary planet hue
     uint16 hueC; // Tertiary planet hue
