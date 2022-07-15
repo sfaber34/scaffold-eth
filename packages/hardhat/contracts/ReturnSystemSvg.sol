@@ -24,7 +24,6 @@ contract ReturnSystemSvg {
 
 
   function returnSystemSvg(Structs.System memory system, Structs.Planet[] memory planets) external pure returns (string memory) {
-    
     // Angles used to place planets around star. 0e18 is to the right of the star a y=500.
     uint64[7] memory angles = [0e18, 35904e14, 53856e14, 89759e13, 17952e14, 44880e14, 26928e14];
     
@@ -143,7 +142,7 @@ contract ReturnSystemSvg {
       ));
     }
 
-    // Add text about system attributes to bottom of svg
+    // Add system name text
     render = string(abi.encodePacked(
       render,
       '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
@@ -153,6 +152,7 @@ contract ReturnSystemSvg {
 
     return render;
   }
+
 
   function getPlanetGradientFilter(uint i, Structs.Planet memory planet) internal pure returns (string memory planetGradient) {
     uint8 turbBaseFreq;

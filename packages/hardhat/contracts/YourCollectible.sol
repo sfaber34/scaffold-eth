@@ -183,7 +183,9 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
   function populateNFTAttributes(Structs.System memory system, Structs.Planet[] memory planets) internal pure returns (bytes memory attributes) {
 
     attributes = abi.encodePacked(
-      '"attributes": [{"trait_type": "star_type", "value": "',
+      '"attributes": [{"trait_type": "system_coordinates", "value": "',
+      system.coordinates[0].uint2Str(),',',system.coordinates[1].uint2Str(),
+      '"},{"trait_type": "star_type", "value": "',
       system.category,
       '"},{"trait_type": "planets", "value": "',
       planets.length.uint2Str(),

@@ -7,6 +7,7 @@ library Structs {
   struct System {
     string name; // The system/star name
     string category; // Star type: main sequence or dwarf
+    bytes32 entropy;
     uint16[2] coordinates; // Galactic x/y system coordinates
     uint16 radius; // Star radius (pixels)
     uint16 hue; // Star Hue
@@ -16,6 +17,7 @@ library Structs {
   }
 
   struct Planet {
+    bytes32 entropy;
     uint16 radius; // Planet radius (pixels)
     uint16 orbDist; // Planet orbit distance; radial distance from star centroid to planet centroid (pixels)
     uint8 category; 
