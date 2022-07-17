@@ -1,0 +1,18 @@
+{
+  "localhost_PopulateSystemLayoutStructsAddress": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+  "localhost_ReturnSystemSvgAddress": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+  "localhost_StructsAddress": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+  "localhost_SystemDataAddress": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+  "localhost_SystemNameAddress": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "localhost_TestAddress": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+  "localhost_TrigonometryAddress": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+  "localhost_YourCollectibleAddress": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+  "kovan_PopulateSystemLayoutStructsAddress": "0xfd14953917787d34df04A3709299FC35e018d289",
+  "kovan_ReturnSystemSvgAddress": "0x4031985389956Ce6986cd288817730eEb817c870",
+  "kovan_StructsAddress": "0x1Be0E00267a6084cf2Aa6C02d92C2cfd32919f70",
+  "kovan_SystemDataAddress": "0x7A55111276490f22E7E0A738442C7694D474cD4b",
+  "kovan_SystemNameAddress": "0x954C8691aA209E9491d21734262e3feffe8ACd1F",
+  "kovan_TestAddress": "0x707a46332DD5a42179E2EEb6D00212198e0ee9d3",
+  "kovan_TrigonometryAddress": "0xEaF4825c670584cAB784eB7E5ecA792d2e26F4e2",
+  "kovan_YourCollectibleAddress": "0x958308ba4B7C6d9F0F10B71AA46ACa64413fA9df"
+}
