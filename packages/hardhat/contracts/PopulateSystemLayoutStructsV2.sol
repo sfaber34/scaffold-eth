@@ -5,7 +5,7 @@ import './Structs.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
 
-contract PopulateSystemLayoutStructs {
+contract PopulateSystemLayoutStructsV2 {
 
   using ToColor for bytes3;
   using Uint2Str for uint16;
@@ -165,7 +165,7 @@ contract PopulateSystemLayoutStructs {
     uint8 nNonGas;
     // using unchecked to save gas
     for (uint i=0; i<nPlanets;) {
-      plRadii[i] = uint16(bytes2(0x0000) | ( bytes2(randomish[i+13]) >> 8 )) % 24 + 10;
+      plRadii[i] = 10;
 
       // Keep track of n non-gas planets. Want at least 1 planet that players can land on
       if (plRadii[i] < 20) {

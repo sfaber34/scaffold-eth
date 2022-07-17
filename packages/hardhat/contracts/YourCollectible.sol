@@ -59,9 +59,8 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
   uint256 public price = 0.005 ether;
 
   mapping (uint256 => bytes32) public randomish;
-  // these are only set in constructor so should be immutable ot save gas
-  address public immutable populateSystemLayoutStructsAddress;
-  address public immutable returnSystemSvgAddress;
+  address public populateSystemLayoutStructsAddress;
+  address public returnSystemSvgAddress;
   constructor(
     address _populateSystemLayoutStructsAddress,
     address _returnSystemSvgAddress
@@ -70,13 +69,13 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
 
-  // function updatePopulateSystemLayoutStructsAddress(address newAddress) public onlyOwner {
-  //   populateSystemLayoutStructsAddress = newAddress;
-  // } 
+  function updatePopulateSystemLayoutStructsAddress(address newAddress) public onlyOwner {
+    populateSystemLayoutStructsAddress = newAddress;
+  } 
 
-  // function updateReturnSystemSvgAddress(address newAddress) public onlyOwner {
-  //   returnSystemSvgAddress = newAddress;
-  // }
+  function updateReturnSystemSvgAddress(address newAddress) public onlyOwner {
+    returnSystemSvgAddress = newAddress;
+  }
 
   function mintItem()
       public
@@ -115,7 +114,9 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       system.name,
       ' is a ',
       system.category,
-      ' star with ', 
+      ' star located at ',
+      system.coordinates[0].uint2Str(),',',system.coordinates[1].uint2Str(),
+      ' with ', 
       planets.length.uint2Str(),
       ' planets.'
     ));
@@ -174,7 +175,6 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
 
   // Visibility is `public` to enable it being called by other contracts for composition.
   function renderToken(Structs.System memory system, Structs.Planet[] memory planets) public view returns (string memory) {
-
     string memory render = IReturnSystemSvg(returnSystemSvgAddress).returnSystemSvg(system, planets);
     
     return render;
