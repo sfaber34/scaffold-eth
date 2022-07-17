@@ -375,12 +375,13 @@ function App(props) {
       />
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
-      <NetworkDisplay
+      {/* <NetworkDisplay
         NETWORKCHECK={NETWORKCHECK}
         localChainId={localChainId}
         selectedChainId={selectedChainId}
         targetNetwork={targetNetwork}
-      />
+      /> */}
+      {yourCollectibles && yourCollectibles.length > 0 ?
       <Menu
         style={{ textAlign: "left", position: "absolute", zIndex: 2 }}
         selectedKeys={[currentSystemId]}
@@ -423,12 +424,24 @@ function App(props) {
               ))
             : ""}
         </Menu.ItemGroup>
-      </Menu>
+      </Menu> :
+      '' }
 
-      {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32, position: "absolute", zIndex: 2 }}>
-        <div style={{ height: "10px" }}></div>
-        <Button
+      <div style={{ maxWidth: 820, margin: "auto", marginTop: '10%', paddingBottom: 32, position: "relative", zIndex: 2 }}>
+        <h1>Exos</h1>
+        <p style={{margin: "10px 20%", fontSize: "20px", lineHeight: "48px"}}>flavor text... flavor text... flavor text... flavor text... 
+          flavor text... flavor text... flavor text... 
+          flavor text... flavor text... flavor text... flavor text... flavor text... 
+          flavor text... flavor text... flavor text... 
+          flavor text... flavor text... flavor text... flavor text... flavor text... 
+          flavor text...</p>
+        {web3Modal &&
+        (web3Modal?.cachedProvider ? (
+          <Button
+          key="mintbutton"
           type="primary"
+          size="large"
+          style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
           onClick={async () => {
             const priceRightNow = await readContracts.YourCollectible.price();
             try {
@@ -444,17 +457,18 @@ function App(props) {
         >
           MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)}
         </Button>
-        <p style={{ fontWeight: "bold" }}>{loogiesLeft} left</p>
-        <Button
-          type="primary"
-          onClick={() => {
-            console.log("setting moving", moving);
-            setCurrentSystemId(0);
-          }}
-        >
-          Move to star
-        </Button>
-      </div> */}
+        ) : (
+          <Button
+            key="loginbutton"
+            style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
+            size="large"
+            type="primary"
+            onClick={loadWeb3Modal}
+          >
+            Connect Wallet
+          </Button>
+        ))}
+      </div>
 
       <Switch>
         <Route exact path="/">
@@ -509,7 +523,7 @@ function App(props) {
           </div>
           <Contract
             name="PopulateSystemLayoutStructs"
-            price={price}
+            price={priceToMint}
             signer={userSigner}
             provider={localProvider}
             address={address}
@@ -518,7 +532,7 @@ function App(props) {
           />
           <Contract
             name="YourCollectible"
-            price={price}
+            price={priceToMint}
             signer={userSigner}
             provider={localProvider}
             address={address}
@@ -528,7 +542,7 @@ function App(props) {
         </Route>
       </Switch>
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 2 }}>
+      {targetNetwork.name == 'localhost' ? <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 2 }}>
         <Account
           address={address}
           localProvider={localProvider}
@@ -541,7 +555,7 @@ function App(props) {
           blockExplorer={blockExplorer}
         />
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-      </div>
+      </div> : '' }
       {/* <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
         <Button
           type="primary"
