@@ -1,12 +1,14 @@
 import { Skeleton, Typography } from "antd";
 import React from "react";
-import Blockies from "react-blockies";
 import { useThemeSwitcher } from "react-css-theme-switcher";
+import Blockies from "react-blockies";
 import { useLookupAddress } from "eth-hooks/dapps/ens";
 
 // changed value={address} to address={address}
 
-/*
+const { Text } = Typography;
+
+/** 
   ~ What it does? ~
 
   Displays an address with a blockie image and option to copy address
@@ -27,11 +29,9 @@ import { useLookupAddress } from "eth-hooks/dapps/ens";
   - Provide blockExplorer={blockExplorer}, click on address and get the link
               (ex. by default "https://etherscan.io/" or for xdai "https://blockscout.com/poa/xdai/")
   - Provide fontSize={fontSize} to change the size of address text
-*/
+**/
 
-const { Text } = Typography;
-
-const blockExplorerLink = (address, blockExplorer) => blockExplorer || `https://etherscan.io/address/${address}`;
+const blockExplorerLink = (address, blockExplorer) => `${blockExplorer || "https://etherscan.io/"}address/${address}`;
 
 export default function Address(props) {
   const { currentTheme } = useThemeSwitcher();
@@ -40,7 +40,7 @@ export default function Address(props) {
   const ensSplit = ens && ens.split(".");
   const validEnsCheck = ensSplit && ensSplit[ensSplit.length - 1] === "eth";
   const etherscanLink = blockExplorerLink(address, props.blockExplorer);
-  let displayAddress = address?.substr(0, 6);
+  let displayAddress = address?.substr(0, 5) + "..." + address?.substr(-4);
 
   if (validEnsCheck) {
     displayAddress = ens;
