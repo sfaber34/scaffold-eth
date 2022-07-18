@@ -187,7 +187,7 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       system.coordinates[0].uint2Str(),',',system.coordinates[1].uint2Str(),
       '"},{"trait_type": "star_type", "value": "',
       system.category,
-      '"},{"trait_type": "planets", "value": "',
+      '"},{"trait_type": "planet_count", "value": "',
       planets.length.uint2Str(),
       '"},{"trait_type": "habitable_world_count", "value": "',
       system.nHabitable.uint2Str(),

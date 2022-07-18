@@ -29,4 +29,27 @@ library Structs {
     uint16 turbScale; // Smear filter turbulance scale. Adds more variation in planet appearance
   }
 
+  // struct PlanetResources {
+  //   bool hydrogen;
+  //   bool helium;
+  //   bool oxygen;
+  //   bool water;
+  //   bool ammonia;
+  //   bool methane;
+  //   bool iron;
+  //   bool nickel;
+  //   bool copper;
+  //   bool aluminium;
+  //   bool silicon;
+  //   bool gold;
+  //   bool silver;
+  //   bool titanium;
+  //   bool chromium;
+  //   bool platinum;
+  //   bool lithium;
+  //   bool palladium;
+  //   bool cobalt;
+  //   bool selenium;
+  // }
+
 }

@@ -308,4 +308,72 @@ contract PopulateSystemLayoutStructs {
     return (nGas, nRocky, nHabitable);
   }
 
+
+  // function getPlanetResources(bytes32 randomish, uint256 index, uint8 plCategory) public pure returns (Structs.PlanetResources memory planetResources) {
+  //   bytes32 randomishB = keccak256(abi.encodePacked( randomish, index));
+
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[10]) >> 8 )) > 10) {
+  //     planetResources.hydrogen = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[11]) >> 8 )) > 10) {
+  //     planetResources.helium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[12]) >> 8 )) > 10) {
+  //     planetResources.oxygen = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[13]) >> 8 )) > 10) {
+  //     planetResources.water = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[14]) >> 8 )) > 10) {
+  //     planetResources.ammonia = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[15]) >> 8 )) > 10) {
+  //     planetResources.methane = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[16]) >> 8 )) > 10) {
+  //     planetResources.iron = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[17]) >> 8 )) > 10) {
+  //     planetResources.nickel = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[18]) >> 8 )) > 10) {
+  //     planetResources.copper = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[19]) >> 8 )) > 10) {
+  //     planetResources.aluminium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[20]) >> 8 )) > 10) {
+  //     planetResources.silicon = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[21]) >> 8 )) > 10) {
+  //     planetResources.gold = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[22]) >> 8 )) > 10) {
+  //     planetResources.silver = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[23]) >> 8 )) > 10) {
+  //     planetResources.titanium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[24]) >> 8 )) > 10) {
+  //     planetResources.chromium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[25]) >> 8 )) > 10) {
+  //     planetResources.platinum = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[26]) >> 8 )) > 10) {
+  //     planetResources.lithium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[27]) >> 8 )) > 10) {
+  //     planetResources.palladium = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[28]) >> 8 )) > 10) {
+  //     planetResources.cobalt = true;
+  //   }
+  //   if ( uint16(bytes2(0x0000) | ( bytes2(randomishB[29]) >> 8 )) > 10) {
+  //     planetResources.hydrogen = true;
+  //   }
+
+  //   return planetResources;
+  // }
+
 }
