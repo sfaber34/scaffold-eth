@@ -1,9 +1,8 @@
 import { Button, Col, Divider, Input, Row, Tooltip } from "antd";
 import React, { useState } from "react";
 import Blockies from "react-blockies";
-
 import { Transactor } from "../../helpers";
-import { tryToDisplay, tryToDisplayAsText } from "./utils";
+import tryToDisplay from "./utils";
 
 const { utils, BigNumber } = require("ethers");
 
@@ -188,7 +187,7 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
               const args = functionInfo.inputs.map((input, inputIndex) => {
                 const key = getFunctionInputKey(functionInfo, input, inputIndex);
                 let value = form[key];
-                if (["array", "tuple"].includes(input.baseType)) {
+                if (input.baseType === "array") {
                   value = JSON.parse(value);
                 } else if (input.type === "bool") {
                   if (value === "true" || value === "1" || value === "0x1" || value === "0x01" || value === "0x0001") {
@@ -205,7 +204,7 @@ export default function FunctionForm({ contractFunction, functionInfo, provider,
                 try {
                   const returned = await contractFunction(...args);
                   handleForm(returned);
-                  result = tryToDisplayAsText(returned);
+                  result = tryToDisplay(returned);
                 } catch (err) {
                   console.error(err);
                 }

@@ -1,3 +1,5 @@
+import { Alert, Button, Col, Menu, Row } from "antd";
+import { StarField, useStarField, StarFieldState, createStarsState } from "starfield-react";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -22,16 +24,14 @@ import {
   ThemeSwitch,
   NetworkDisplay,
   FaucetHint,
-  NetworkSwitch,
 } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { YourExos } from "./views";
+import { YourExos, Exos } from "./views";
 import { useStaticJsonRPC } from "./hooks";
-import Example from "./views/Example";
 
 const { ethers } = require("ethers");
 /*
@@ -44,7 +44,7 @@ const { ethers } = require("ethers");
     https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
     or DM @austingriffith on twitter or telegram
 
-    You should get your own Alchemy.com & Infura.io ID and put it in `constants.js`
+    You should get your own Infura.io ID and put it in `constants.js`
     (this is your connection to the main Ethereum network for ENS etc.)
 
 
@@ -54,7 +54,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.kovan; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 const BufferList = require("bl/BufferList");
 
@@ -66,7 +66,7 @@ const NETWORKCHECK = false;
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
 // 🔭 block explorer URL
-// const blockExplorer = targetNetwork.blockExplorer;
+const blockExplorer = targetNetwork.blockExplorer;
 
 const web3Modal = Web3ModalSetup();
 
@@ -78,30 +78,15 @@ const providers = [
 ];
 
 function App(props) {
-  // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
-  // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "rinkeby"];
-
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const location = useLocation();
-
-  const targetNetwork = NETWORKS[selectedNetwork];
-
-  // 🔭 block explorer URL
-  const blockExplorer = targetNetwork.blockExplorer;
 
   // load all your providers
   const localProvider = useStaticJsonRPC([
     process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : targetNetwork.rpcUrl,
   ]);
   const mainnetProvider = useStaticJsonRPC(providers);
-
-  if (DEBUG) console.log(`Using ${selectedNetwork} network`);
-
-  // 🛰 providers
-  if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -182,9 +167,43 @@ function App(props) {
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
   //
-  const [transferToAddresses, setTransferToAddresses] = useState({});
   const yourBalance = balance && balance.toNumber && balance.toNumber();
-  
+  const [yourCollectibles, setYourCollectibles] = useState();
+  const [transferToAddresses, setTransferToAddresses] = useState({});
+  const [warpWhenReady, setWarpWhenReady] = useState(false);
+
+  useEffect(() => {
+    const updateYourCollectibles = async () => {
+      const collectibleUpdate = [];
+      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
+        try {
+          if (DEBUG) console.log("Getting token index", tokenIndex);
+          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
+          if (DEBUG) console.log("Getting Loogie tokenId: ", tokenId);
+          const tokenURI = await readContracts.YourCollectible.getTokenURI(tokenId, true);
+          if (DEBUG) console.log("tokenURI: ", tokenURI);
+          const jsonManifestString = atob(tokenURI.substring(29));
+
+          try {
+            const jsonManifest = JSON.parse(jsonManifestString);
+            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
+          } catch (e) {
+            console.log(e);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      console.log(collectibleUpdate);
+      setYourCollectibles(collectibleUpdate.reverse());
+      if (warpWhenReady) {
+        setCurrentSystemId(collectibleUpdate[0].id.toNumber());
+        setWarpWhenReady(false);
+      }
+    };
+    updateYourCollectibles();
+  }, [address, yourBalance]);
+
   //
   // 🧫 DEBUG 👨🏻‍🔬
   //
@@ -208,6 +227,7 @@ function App(props) {
       console.log("💵 yourLocalBalance", yourLocalBalance ? ethers.utils.formatEther(yourLocalBalance) : "...");
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? ethers.utils.formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
+      console.log("🌍 DAI contract on mainnet:", mainnetContracts);
       console.log("🔐 writeContracts", writeContracts);
     }
   }, [
@@ -219,7 +239,6 @@ function App(props) {
     readContracts,
     writeContracts,
     mainnetContracts,
-    localChainId
   ]);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -241,7 +260,6 @@ function App(props) {
       console.log(code, reason);
       logoutOfWeb3Modal();
     });
-    // eslint-disable-next-line
   }, [setInjectedProvider]);
 
   useEffect(() => {
@@ -250,56 +268,195 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const [yourCollectibles, setYourCollectibles] = useState();
-  const [currentSystemId, setCurrentSystemId] = useState(null);
-  const [warpWhenReady, setWarpWhenReady] = useState(false);
-  useEffect(() => {
-    const updateYourCollectibles = async () => {
-      const collectibleUpdate = [];
-      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
-        try {
-          if (DEBUG) console.log("Getting token index", tokenIndex);
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
-          if (DEBUG) console.log("Getting Loogie tokenId: ", tokenId);
-          const tokenURI = await readContracts.YourCollectible.getTokenURI(tokenId, true);
-          if (DEBUG) console.log("tokenURI: ", tokenURI);
-          const jsonManifestString = atob(tokenURI.substring(29));
+  const [system, setSystem] = useState(null);
 
-          try {
-            const jsonManifest = JSON.parse(jsonManifestString);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
-          } catch (e) {
-            console.log(e);
-          }
-        } catch (e) {
-          console.log(e);
-        }
+  const [time, setTime] = useState(0);
+  const interval = useRef(null);
+  const [hasReachedLimit, setHasReachedLimit] = useState(true);
+
+  const [speed, setSpeed] = useState(0);
+  const [moving, setMoving] = useState(false);
+  useEffect(() => {
+    if (moving && speed <= 30) {
+      setSpeed(speed + 1);
+      if (speed >= 30) {
+        setHasReachedLimit(true);
       }
-      setYourCollectibles(collectibleUpdate.reverse());
-      if (warpWhenReady) {
-        setCurrentSystemId(collectibleUpdate[0].id.toNumber());
-        setWarpWhenReady(false);
+    }
+    if (!moving && speed > 0) {
+      setSpeed(speed - 1);
+      if (speed <= 1) {
+        setHasReachedLimit(true);
       }
+    }
+  }, [time]);
+
+  useEffect(() => {
+    if (!hasReachedLimit) {
+      if (moving) {
+        interval.current = setInterval(() => {
+          setTime(t => t + 70);
+        }, 70);
+      } else if (!moving) {
+        interval.current = setInterval(() => {
+          setTime(t => t + 100);
+        }, 100);
+      }
+    } else {
+      clearInterval(interval.current);
+      interval.current = null;
+      setTime(0);
+    }
+
+    return () => {
+      clearInterval(interval.current);
     };
-    updateYourCollectibles();
-  }, [address, yourBalance]);
+  }, [hasReachedLimit]);
+
+  const getSystemURI = async systemId => {
+    const systemURI = await await readContracts.YourCollectible.getTokenURI(systemId, true);
+    return systemURI;
+  };
+
+  const [height, setHeight] = useState(1);
+  const [opacity, setOpacity] = useState(0);
+  const [currentSystemId, setCurrentSystemId] = useState(null);
+  useEffect(() => {
+    const warpToSystem = async systemId => {
+      setOpacity(0);
+      setHasReachedLimit(false);
+      setMoving(true);
+      setTimeout(() => setHeight(1), 500);
+      const uri = await getSystemURI(systemId, true);
+      const jsonManifestString = atob(uri.substring(29));
+      const jsonManifest = JSON.parse(jsonManifestString);
+      setSystem(jsonManifest);
+      setTimeout(async () => {
+        setHasReachedLimit(false);
+        setMoving(false);
+        setTimeout(() => {
+          setOpacity(1);
+          // <img class="system-img"> height must be multiple of 10 or some SVG animations are too fast in Chrome
+          setHeight(window.innerHeight - window.innerHeight % 10);
+        }, 1100);
+      }, 4000);
+    };
+    if (typeof currentSystemId == "number") {
+      warpToSystem(currentSystemId);
+    }
+  }, [currentSystemId]);
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
   return (
     <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      <Header 
-        location={location}
-        web3Modal={web3Modal}
-        logoutOfWeb3Modal={logoutOfWeb3Modal}
+      <div className="system-img-container">
+        {system ? (
+          <img
+            className="system-img"
+            src={system.image}
+            alt={system.name}
+            style={{ height: height, opacity: opacity }}
+          />
+        ) : (
+          ""
+        )}
+      </div>
+      <StarField
+        id="starfield"
+        width={window.innerWidth}
+        height={window.innerHeight}
+        speed={speed * 4}
+        count={120}
+        fps={60}
+        starRatio={365}
+        clear={true}
+        starSize={2}
+        starShape={"square"}
       />
-      {/* <NetworkDisplay
+      {/* ✏️ Edit the header and change the title to your project name */}
+      <Header />
+      <NetworkDisplay
         NETWORKCHECK={NETWORKCHECK}
         localChainId={localChainId}
         selectedChainId={selectedChainId}
         targetNetwork={targetNetwork}
-      /> */}
+      />
+      <Menu
+        style={{ textAlign: "left", position: "absolute", zIndex: 2 }}
+        selectedKeys={[currentSystemId]}
+        mode="vertical"
+      >
+        <Menu.Item key="mint" onClick={async () => {
+            const priceRightNow = await readContracts.YourCollectible.price();
+            try {
+              const txCur = await tx(
+                writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 }),
+              ); // 300000
+              await txCur.wait();
+              setWarpWhenReady(true);
+            } catch (e) {
+              console.log("mint failed", e);
+            }
+          }}>
+          Locate New System (Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)})
+        </Menu.Item>
+        {/* <Menu.Item key="/yourExos">
+          <Link to="/yourExos">Your Exos</Link>
+        </Menu.Item>
+        <Menu.Item key="/about">
+          <Link to="/about">About</Link>
+        </Menu.Item>
+        <Menu.Item key="/debug">
+          <Link to="/debug">Debug Contracts</Link>
+        </Menu.Item> */}
+        <Menu.ItemGroup title="Located Systems">
+          {yourCollectibles
+            ? yourCollectibles.map(c => (
+                <Menu.Item
+                  key={c.id.toNumber()}
+                  onClick={() => {
+                    setCurrentSystemId(c.id.toNumber());
+                  }}
+                >
+                  {c.name}
+                </Menu.Item>
+              ))
+            : ""}
+        </Menu.ItemGroup>
+      </Menu>
+
+      {/* <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32, position: "absolute", zIndex: 2 }}>
+        <div style={{ height: "10px" }}></div>
+        <Button
+          type="primary"
+          onClick={async () => {
+            const priceRightNow = await readContracts.YourCollectible.price();
+            try {
+              const txCur = await tx(
+                writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 }),
+              ); // 300000
+              await txCur.wait();
+              setWarpWhenReady(true);
+            } catch (e) {
+              console.log("mint failed", e);
+            }
+          }}
+        >
+          MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)}
+        </Button>
+        <p style={{ fontWeight: "bold" }}>{loogiesLeft} left</p>
+        <Button
+          type="primary"
+          onClick={() => {
+            console.log("setting moving", moving);
+            setCurrentSystemId(0);
+          }}
+        >
+          Move to star
+        </Button>
+      </div> */}
+
       <Switch>
         <Route exact path="/">
           {/* <Exos
@@ -309,9 +466,8 @@ function App(props) {
             totalSupply={totalSupply}
             DEBUG={DEBUG}
           /> */}
-          <Example />
         </Route>
-        <Route exact path="/mint">
+        <Route exact path="/yourExos">
           <YourExos
             readContracts={readContracts}
             writeContracts={writeContracts}
@@ -323,12 +479,6 @@ function App(props) {
             transferToAddresses={transferToAddresses}
             setTransferToAddresses={setTransferToAddresses}
             address={address}
-            currentSystemId={currentSystemId}
-            warpWhenReady={warpWhenReady}
-            web3Modal={web3Modal}
-            loadWeb3Modal={loadWeb3Modal}
-            setCurrentSystemId={setCurrentSystemId}
-            setWarpWhenReady={setWarpWhenReady}
           />
         </Route>
         <Route exact path="/about">
@@ -360,7 +510,7 @@ function App(props) {
           </div>
           <Contract
             name="PopulateSystemLayoutStructs"
-            price={priceToMint}
+            price={price}
             signer={userSigner}
             provider={localProvider}
             address={address}
@@ -369,7 +519,7 @@ function App(props) {
           />
           <Contract
             name="YourCollectible"
-            price={priceToMint}
+            price={price}
             signer={userSigner}
             provider={localProvider}
             address={address}
@@ -380,7 +530,7 @@ function App(props) {
       </Switch>
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 2 }}>
-        {/* <Account
+        <Account
           address={address}
           localProvider={localProvider}
           userSigner={userSigner}
@@ -390,9 +540,27 @@ function App(props) {
           loadWeb3Modal={loadWeb3Modal}
           logoutOfWeb3Modal={logoutOfWeb3Modal}
           blockExplorer={blockExplorer}
-        /> */}
+        />
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-      </div> 
+      </div>
+      <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
+        <Button
+          type="primary"
+          style={{ float: "right", marginRight: 10 }}
+          target="_blank"
+          href="https://testnets.opensea.io/collection/exos-v4"
+        >View Collection On OpenSea</Button>
+        {system ? (
+          <Button
+            type="primary"
+            style={{ float: "right", marginRight: 10 }}
+            target="_blank"
+            href={"https://testnets.opensea.io/assets/rinkeby/0xa4d67c48c155b0cc3d9a36355fbbc0e80345ee78/" + currentSystemId}
+          >View System On OpenSea</Button>
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 }

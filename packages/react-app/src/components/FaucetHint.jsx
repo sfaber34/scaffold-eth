@@ -1,7 +1,7 @@
-import { Button } from "antd";
 import React, { useState } from "react";
-import { ethers } from "ethers";
 import { useBalance, useGasPrice } from "eth-hooks";
+import { ethers } from "ethers";
+import { Button } from "antd";
 
 import { Transactor } from "../helpers";
 
@@ -28,7 +28,7 @@ function FaucetHint({ localProvider, targetNetwork, address }) {
     ethers.utils.formatEther(yourLocalBalance) <= 0
   ) {
     faucetHint = (
-      <div style={{ position: "absolute", right: 65, top: 65 }}>
+      <div style={{ padding: 16 }}>
         <Button
           type="primary"
           onClick={() => {

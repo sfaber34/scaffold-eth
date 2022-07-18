@@ -14,7 +14,7 @@ export default function useStaticJsonRPC(urlArray) {
 
   const handleProviders = useCallback(async () => {
     try {
-      const p = await Promise.race(urlArray.map(createProvider));
+      const p = await Promise.any(urlArray.map(createProvider));
       const _p = await p;
 
       setProvider(_p);
@@ -22,12 +22,11 @@ export default function useStaticJsonRPC(urlArray) {
       // todo: show notification error about provider issues
       console.log(error);
     }
-  }, [urlArray]);
+  });
 
   useEffect(() => {
     handleProviders();
-    // eslint-disable-next-line
-  }, [JSON.stringify(urlArray)]);
+  }, []);
 
   return provider;
 }

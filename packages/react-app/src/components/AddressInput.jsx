@@ -1,17 +1,14 @@
-import { Badge, Input } from "antd";
-import React, { useCallback, useState } from "react";
-import { ethers } from "ethers";
 import { CameraOutlined, QrcodeOutlined } from "@ant-design/icons";
+import { Badge, Input } from "antd";
 import { useLookupAddress } from "eth-hooks/dapps/ens";
+import React, { useCallback, useState } from "react";
 import QrReader from "react-qr-reader";
-
 import Blockie from "./Blockie";
-
-const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".xyz");
+import { ethers } from "ethers";
 
 // probably we need to change value={toAddress} to address={toAddress}
 
-/** 
+/*
   ~ What it does? ~
 
   Displays an address input with QR scan option
@@ -34,7 +31,10 @@ const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".x
   - Value of the address input is stored in value={toAddress}
   - Control input change by onChange={setToAddress}
                           or onChange={address => { setToAddress(address);}}
-**/
+*/
+
+const isENS = (address = "") => address.endsWith(".eth") || address.endsWith(".xyz");
+
 export default function AddressInput(props) {
   const { ensProvider, onChange } = props;
   const [value, setValue] = useState(props.value);
