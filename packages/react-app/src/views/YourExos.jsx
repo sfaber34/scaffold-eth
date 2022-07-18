@@ -183,6 +183,24 @@ function YourExos({
           </Menu>
           : ""}
       </div>
+      <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
+        <Button
+          type="primary"
+          style={{ float: "right", marginRight: 10 }}
+          target="_blank"
+          href="https://testnets.opensea.io/collection/exos-v4"
+        >View Collection On OpenSea</Button>
+        {system ? (
+          <Button
+            type="primary"
+            style={{ float: "right", marginRight: 10 }}
+            target="_blank"
+            href={"https://testnets.opensea.io/assets/rinkeby/0xa4d67c48c155b0cc3d9a36355fbbc0e80345ee78/" + currentSystemId}
+          >View System On OpenSea</Button>
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 }

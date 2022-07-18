@@ -6,7 +6,7 @@ import './Structs.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
 
-contract ReturnSystemSvg {
+contract ReturnSystemSvgV2 {
 
   using Trigonometry for uint256;
   using Uint2Str for uint;
@@ -63,12 +63,12 @@ contract ReturnSystemSvg {
     ));
 
     // Draw the system star
-    render = string(abi.encodePacked(
-      render,
-      '<circle cx="500" cy="500" r="',
-      system.radius.uint2Str(),
-      '" style="fill:url(#star);" />'
-    ));
+    // render = string(abi.encodePacked(
+    //   render,
+    //   '<circle cx="500" cy="500" r="',
+    //   system.radius.uint2Str(),
+    //   '" style="fill:url(#star);" />'
+    // ));
 
     // Draw planets. Each planet has 3 circles; a base with a solid fill, the spinning overlay with radial gradient/smear filter, and
     // a top circle with linear gradient for the shadow.

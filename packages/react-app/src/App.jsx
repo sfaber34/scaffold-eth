@@ -1,4 +1,3 @@
-import { Alert, Button, Col, Menu, Row } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -394,11 +393,6 @@ function App(props) {
         /> */}
         <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
       </div> 
-      {/* <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
-        <Button
-          type="primary"
-        >View Collection</Button>
-      </div> */}
     </div>
   );
 }

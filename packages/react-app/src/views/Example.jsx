@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "antd";
+
 
 
 function Example() {
@@ -22,6 +24,14 @@ const metadata = {"name":"Pi Inuus Province-a1caa5", "description":"Pi Inuus Pro
                 lorem ipsum text about the metadata
             </p>
         </div>
+        <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
+        <Button
+          type="primary"
+          style={{ float: "right", marginRight: 10 }}
+          target="_blank"
+          href="https://testnets.opensea.io/collection/exos-v4"
+        >View Collection On OpenSea</Button>
+      </div>
     </div>
   );
 }
