@@ -84,11 +84,13 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       nonReentrant
       returns (uint256)
   {   
-      if (msg.value < price) {
+      // avoid an extra SLOAD to save gas
+      uint _price = price;
+      if (msg.value < _price) {
          revert INSUFFICIENT_AMOUNT();
       }
       
-      price = (price * curve) / 1000;
+      price = (_price * curve) / 1000;
 
       uint256 id = _tokenIds.current();
       randomish[id] = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
