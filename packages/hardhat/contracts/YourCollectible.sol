@@ -113,7 +113,7 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
 
       _tokenIds.increment();
 
-      (bool mintFeeSent, ) = recipient.call{value: msg.value}("");
+      (bool mintFeeSent, ) = recipient.call{value: _price}("");
       if (!mintFeeSent) {
         revert TOKEN_TRANSFER_FAILURE();
       }
@@ -121,7 +121,7 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       uint256 refund = msg.value - _price;
       console.log("refund: %s", refund);
       if (refund > 0) {
-        (bool refundSent, ) = payable(msg.sender).call{value: refund}("");
+        (bool refundSent, ) = msg.sender.call{value: refund}("");
         if (!refundSent) {
           revert REFUND_TRANSFER_FAILURE();
         }

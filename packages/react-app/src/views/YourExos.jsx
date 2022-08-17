@@ -144,7 +144,7 @@ function YourExos({
             try {
               const txCur = await tx(
                 // writeContracts.YourCollectible.mintItem({ value: priceFuture, gasLimit: 200000 }),
-                writeContracts.YourCollectible.mintItem({ value: priceFuture, gasLimit: 300000 }),
+                writeContracts.YourCollectible.mintItem({ value: priceFuture, gasLimit: 240000 }),
               ); // 300000
               await txCur.wait();
             } catch (e) {
@@ -152,7 +152,8 @@ function YourExos({
             }
           }}
         >
-          MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)}
+          {/* MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)} */}
+          MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(8)}
         </Button>
         ) : (
         <Button 
