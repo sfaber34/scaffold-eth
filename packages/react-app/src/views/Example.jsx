@@ -29,7 +29,7 @@ const metadata = {"name":"Pi Inuus Province-a1caa5", "description":"Pi Inuus Pro
           type="primary"
           style={{ float: "right", marginRight: 10 }}
           target="_blank"
-          href="https://testnets.opensea.io/collection/exos-v4"
+          href="https://testnets.opensea.io/collection/exos-oxjdaodfx9"
         >View Collection On OpenSea</Button>
       </div>
     </div>

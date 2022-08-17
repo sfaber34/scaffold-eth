@@ -27,7 +27,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "kovan";
+const defaultNetwork = "localhost";
 
 const mainnetGwei = 21;
 
@@ -293,8 +293,11 @@ module.exports = {
         version: "0.8.4",
         settings: {
           optimizer: {
-            enabled: false,
+            enabled: true,
             runs: 200,
+            details: {
+              yul: false
+            }
           },
         },
       },

@@ -30,15 +30,22 @@ contract ReturnSystemSvg {
     // Add the star radial gradient
     string memory render = string(abi.encodePacked(
       '<defs>',
-      '<radialGradient id="star" r="65%" spreadMethod="pad">',
+      // '<radialGradient id="star" r="65%" spreadMethod="pad">',
+      '<radialGradient id="star" spreadMethod="pad">',
         '<stop offset="0%" stop-color="hsl(',
         system.hue.uint2Str(),
-        ',65%,95%)" stop-opacity="1" />',
-        '<stop offset="60%" stop-color="hsl(',
+        // ',65%,95%)" stop-opacity="1" />',
+        ',70%,65%)" stop-opacity="1">',
+          '<animate attributeName="stop-opacity" dur="8s" values="0.8;1;0.8" repeatCount="indefinite" />',
+        '</stop>',
+        '<stop offset="70%" stop-color="hsl(',
         system.hue.uint2Str(),
-        // ',40%,75%)" stop-opacity="1" />',
-        ',50%,65%)" stop-opacity="1" />',
-        '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
+        // ',50%,65%)" stop-opacity="1" />',
+        ',90%,45%)" stop-opacity="1" />',
+        // '<stop offset="80%" stop-color="#000000" stop-opacity="0" />',
+        '<stop offset="100%" stop-opacity="0.4">',
+          '<animate attributeName="stop-opacity" dur="8s" values="0.4;0.8;0.4" repeatCount="indefinite" />',
+        '</stop>',
       '</radialGradient>'
     ));
 
@@ -87,7 +94,7 @@ contract ReturnSystemSvg {
         render,
         '<g>',
           '<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 500 500" to="360 500 500" begin="0s" dur="',
-          (thisPlanet.orbDist / 10).uint2Str(), // Rough scaling to make further planets orbit slower
+          (thisPlanet.orbDist / 8).uint2Str(), // Rough scaling to make further planets orbit slower
           's" repeatCount="indefinite" additive="sum" />',
           '<circle cx="',
           cx.uint2Str(),
@@ -122,7 +129,7 @@ contract ReturnSystemSvg {
             ' ',
             cy.uint2Str(),
             '" begin="0s" dur="',
-            (thisPlanet.radius * 65 + 500).uint2Str(), // Planet rotation time. Spans ~800 to 3000 ms depending on planet radius
+            (thisPlanet.radius * 65 + 500).uint2Str(),
             'ms" repeatCount="indefinite" additive="sum" />',
           '</circle>',
           '<circle cx="',
@@ -145,7 +152,7 @@ contract ReturnSystemSvg {
     // Add system name text
     render = string(abi.encodePacked(
       render,
-      '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 32px;" text-anchor="start">',
+      '<text x="20" y="980" style="font-family: Courier New; fill: #ffffff; font-size: 26px;" text-anchor="start">',
       system.name,
       '</text>'
     ));
@@ -156,12 +163,10 @@ contract ReturnSystemSvg {
 
   function getPlanetGradientFilter(uint i, Structs.Planet memory planet) internal pure returns (string memory planetGradient) {
     uint8 turbBaseFreq;
-    uint8 blurDeviation;
 
     // Gas planet
     if (planet.category == 0) {
       turbBaseFreq = 0;
-      blurDeviation = 1;
 
       planetGradient = string(abi.encodePacked(
         '<radialGradient id="',
@@ -185,7 +190,6 @@ contract ReturnSystemSvg {
     // Rocky planet
     else if (planet.category == 1) {
       turbBaseFreq = 4;
-      blurDeviation = 0;
 
       planetGradient = string(abi.encodePacked(
         '<radialGradient id="',
@@ -209,7 +213,6 @@ contract ReturnSystemSvg {
     // Water World
     else if (planet.category == 2) {
       turbBaseFreq = 0;
-      blurDeviation = 0;
 
       planetGradient = string(abi.encodePacked(
         '<radialGradient id="',
@@ -243,9 +246,6 @@ contract ReturnSystemSvg {
         '<feDisplacementMap in2="turbulence" in="SourceGraphic" scale="',
         planet.turbScale.uint2Str(),
         '" xChannelSelector="R" yChannelSelector="G" result="displacement"/>',
-        '<feGaussianBlur in="displacement" stdDeviation="',
-        blurDeviation.uint2Str(),
-        '" />',
         '<feComposite operator="in" in2="SourceGraphic" />',
       '</filter>'
     ));

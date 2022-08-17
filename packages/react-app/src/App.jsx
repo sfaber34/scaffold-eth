@@ -1,4 +1,5 @@
 import "antd/dist/antd.css";
+import { Button, Card, Input } from "antd";
 import {
   useBalance,
   useContractLoader,
@@ -54,13 +55,13 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.kovan; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 const BufferList = require("bl/BufferList");
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
-const NETWORKCHECK = false;
+const NETWORKCHECK = true;
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -222,6 +223,9 @@ function App(props) {
     localChainId
   ]);
 
+  var newValue = '';
+  var newPopulateSystemLayoutStructsAddress = '';
+  var newReturnSystemSvgAddress = '';
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -294,12 +298,12 @@ function App(props) {
         web3Modal={web3Modal}
         logoutOfWeb3Modal={logoutOfWeb3Modal}
       />
-      {/* <NetworkDisplay
+      <NetworkDisplay
         NETWORKCHECK={NETWORKCHECK}
         localChainId={localChainId}
         selectedChainId={selectedChainId}
         targetNetwork={targetNetwork}
-      /> */}
+      />
       <Switch>
         <Route exact path="/">
           {/* <Exos
@@ -354,10 +358,97 @@ function App(props) {
             </div> */}
           </div>
         </Route>
+        <Route exact path="/interface">
+          <div style={{ padding: 8, marginTop: 32, width: 500, margin: "auto" }}>
+            <Card title="Update PopulateSystemLayoutStructs Address">
+              <div style={{ padding: 8 }}>
+                <Input
+                  style={{ textAlign: "center" }}
+                  placeholder={"new address"}
+                  onChange={e => {
+                    newPopulateSystemLayoutStructsAddress = e.target.value;
+                  }}
+                />
+              </div>
+
+              <div style={{ padding: 8 }}>
+                <Button
+                  type={"primary"}
+                  onClick={async () => {
+                    await tx(writeContracts.YourCollectible.updatePopulateSystemLayoutStructsAddress(
+                      newPopulateSystemLayoutStructsAddress
+                    ));
+                  }}
+                >
+                  Update
+                </Button>
+              </div>
+            </Card>
+          </div>
+          <div style={{ padding: 8, marginTop: 32, width: 500, margin: "auto" }}>
+            <Card title="Update ReturnSystemSvg Address">
+              <div style={{ padding: 8 }}>
+                <Input
+                  style={{ textAlign: "center" }}
+                  placeholder={"new address"}
+                  onChange={e => {
+                    newReturnSystemSvgAddress = e.target.value;
+                  }}
+                />
+              </div>
+
+              <div style={{ padding: 8 }}>
+                <Button
+                  type={"primary"}
+                  onClick={async () => {
+                    await tx(writeContracts.YourCollectible.updateReturnSystemSvgAddress(
+                      newReturnSystemSvgAddress
+                    ));
+                  }}
+                >
+                  Update
+                </Button>
+              </div>
+            </Card>
+          </div>
+          <div style={{ padding: 8, marginTop: 32, width: 500, margin: "auto" }}>
+            <Card title="Transfer Ownership">
+              <div style={{ padding: 8 }}>
+                <Input
+                  style={{ textAlign: "center" }}
+                  placeholder={"new owner"}
+                  onChange={e => {
+                    newValue = e.target.value;
+                  }}
+                />
+              </div>
+
+              <div style={{ padding: 8 }}>
+                <Button
+                  type={"primary"}
+                  onClick={async () => {
+                    await tx(writeContracts.YourCollectible.transferOwnership(newValue));
+                  }}
+                >
+                  Transfer
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </Route>
         <Route exact path="/debug">
           <div style={{ padding: 32 }}>
             <Address value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address} />
           </div>
+          <Contract
+            name="Test"
+            price={priceToMint}
+            signer={userSigner}
+            provider={localProvider}
+            address={address}
+            blockExplorer={blockExplorer}
+            contractConfig={contractConfig}
+          />
           <Contract
             name="PopulateSystemLayoutStructs"
             price={priceToMint}
@@ -379,7 +470,7 @@ function App(props) {
         </Route>
       </Switch>
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10, zIndex: 2 }}>
+      <div style={{ position: "fixed", textAlign: "right", left: 300, top: 0, padding: 10, zIndex: 2 }}>
         {/* <Account
           address={address}
           localProvider={localProvider}
@@ -390,9 +481,18 @@ function App(props) {
           loadWeb3Modal={loadWeb3Modal}
           logoutOfWeb3Modal={logoutOfWeb3Modal}
           blockExplorer={blockExplorer}
-        /> */}
-        <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
+        />
+        <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} /> */}
       </div> 
+      
+        faucetAvailable ? (
+          <div style={{ position: "fixed", textAlign: "right", left: 10, bottom: 10, padding: 10, zIndex: 2 }}>
+            <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
+          </div>
+        ) : (
+          ""
+        )
+     
     </div>
   );
 }

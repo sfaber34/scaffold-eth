@@ -28,9 +28,17 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
   });
 
+  // const returnPlanetResources = await deploy("ReturnPlanetResources", {
+  //   from: deployer,
+  //   log: true,
+  // });
+
   const populateSystemLayoutStructs = await deploy("PopulateSystemLayoutStructs", {
     from: deployer,
     log: true,
+    // args: [
+    //   returnPlanetResources.address
+    // ],
     libraries: {
       Structs: structs.address
     }
@@ -45,13 +53,16 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     }
   });
 
-  // const test = await deploy("Test", {
-  //   from: deployer,
-  //   log: true,
-  //   libraries: {
-  //     Structs: structs.address
-  //   }
-  // });
+  const test = await deploy("Test", {
+    from: deployer,
+    log: true,
+    args: [
+      populateSystemLayoutStructs.address
+    ],
+    libraries: {
+      Structs: structs.address
+    }
+  });
 
   await deploy("YourCollectible", {
     from: deployer,
@@ -67,8 +78,8 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
 
   const yourCollectible = await ethers.getContract("YourCollectible", deployer);
-  // await yourCollectible.transferOwnership("0x38c772B96D73733F425746bd368B4B4435A37967"); 
-  await yourCollectible.transferOwnership("0xc53D803Fd2c78e9002776990449DEC737f533E76");
+  await yourCollectible.transferOwnership("0x38c772B96D73733F425746bd368B4B4435A37967"); 
+  // await yourCollectible.transferOwnership("0xc53D803Fd2c78e9002776990449DEC737f533E76");
 
   // const populateSystemLayoutStructsV2 = await deploy("PopulateSystemLayoutStructsV2", {
   //   from: deployer,

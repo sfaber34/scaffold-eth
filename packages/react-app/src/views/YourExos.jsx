@@ -136,10 +136,15 @@ function YourExos({
           style={{ zIndex: 2, display: "block", padding: "0 40px", marginTop: 8 }}
           onClick={async () => {
             setWarpWhenReady(true);
-            const priceRightNow = await readContracts.YourCollectible.price();
+            // const priceRightNow = await readContracts.YourCollectible.price();
+            const priceFuture = priceToMint * 1.022121;
+            console.log("priceToMint: %d", priceToMint);
+            // console.log("priceRightNow: %d", priceRightNow);
+            console.log("priceFuture: %d", priceFuture);
             try {
               const txCur = await tx(
-                writeContracts.YourCollectible.mintItem({ value: priceRightNow, gasLimit: 200000 }),
+                // writeContracts.YourCollectible.mintItem({ value: priceFuture, gasLimit: 200000 }),
+                writeContracts.YourCollectible.mintItem({ value: priceFuture, gasLimit: 300000 }),
               ); // 300000
               await txCur.wait();
             } catch (e) {
@@ -188,14 +193,14 @@ function YourExos({
           type="primary"
           style={{ float: "right", marginRight: 10 }}
           target="_blank"
-          href="https://testnets.opensea.io/collection/exos-v4"
+          href="https://testnets.opensea.io/collection/exos-oxjdaodfx9"
         >View Collection On OpenSea</Button>
         {system ? (
           <Button
             type="primary"
             style={{ float: "right", marginRight: 10 }}
             target="_blank"
-            href={"https://testnets.opensea.io/assets/rinkeby/0xa4d67c48c155b0cc3d9a36355fbbc0e80345ee78/" + currentSystemId}
+            href={"https://testnets.opensea.io/assets/rinkeby/0xc25467fE4B91a6EA36Cce7f828e7dcb611c641C8/" + currentSystemId}
           >View System On OpenSea</Button>
         ) : (
           ""

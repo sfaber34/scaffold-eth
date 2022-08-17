@@ -30,6 +30,9 @@ export default function Header({ location, web3Modal, logoutOfWeb3Modal, link, t
     <Menu.Item key="/about">
       <Link to="/about">About</Link>
     </Menu.Item>
+    <Menu.Item key="/interface">
+      <Link to="/interface">Interface</Link>
+    </Menu.Item>
     <Menu.Item key="/debug">
       <Link to="/debug">Debug Contracts</Link>
     </Menu.Item>

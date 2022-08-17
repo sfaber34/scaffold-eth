@@ -12,7 +12,7 @@ import './Structs.sol';
 import './HexStrings.sol';
 import './Uint2Str.sol';
 import './ToColor.sol';
-
+import "hardhat/console.sol";
 
 interface IPopulateSystemLayoutStructs {
   
@@ -38,6 +38,7 @@ interface IReturnSystemSvg {
 // custom errors save gas
 error INSUFFICIENT_AMOUNT();
 error TOKEN_TRANSFER_FAILURE();
+error REFUND_TRANSFER_FAILURE();
 error INVALID_ID();
 
 contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
@@ -51,6 +52,14 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
   using Trigonometry for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
+
+  string[17] public resourceList = [
+    '', 'Hydrogen', 'Ammonia', 'Methane', 
+    'Aluminium', 'Iron', 'Nickel', 'Copper',
+    'Silicon', 'Gold', 'Titanium', 'Lithium',
+    'Cobalt', 'Platinum', 'Chromium', 'Terbium',
+    'Selenium'
+  ];
 
   // Funds to Exos treasury 
   address payable public constant recipient = payable(0x859a0ef4b9D689623C8a83e7eEe7799Fa091976b);
@@ -85,11 +94,17 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
   {   
       // avoid an extra SLOAD to save gas
       uint _price = price;
+      console.log("_price: %s", _price);
+
+      uint priceFuture = (_price * curve * curve) / 1000;
+      console.log("priceFuture: %s", priceFuture);
+
       if (msg.value < _price) {
          revert INSUFFICIENT_AMOUNT();
       }
-      
+
       price = (_price * curve) / 1000;
+      console.log("price: %s", price);
 
       uint256 id = _tokenIds.current();
       randomish[id] = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
@@ -98,10 +113,20 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
 
       _tokenIds.increment();
 
-      (bool success, ) = recipient.call{value: msg.value}("");
-      if (!success) {
+      (bool mintFeeSent, ) = recipient.call{value: msg.value}("");
+      if (!mintFeeSent) {
         revert TOKEN_TRANSFER_FAILURE();
       }
+
+      uint256 refund = msg.value - _price;
+      console.log("refund: %s", refund);
+      if (refund > 0) {
+        (bool refundSent, ) = payable(msg.sender).call{value: refund}("");
+        if (!refundSent) {
+          revert REFUND_TRANSFER_FAILURE();
+        }
+      }
+      
       return id;
   }
 
@@ -116,11 +141,10 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       system.name,
       ' is a ',
       system.category,
-      ' star located at ',
-      system.coordinates[0].uint2Str(),',',system.coordinates[1].uint2Str(),
-      ' with ', 
+      ' star with ', 
       planets.length.uint2Str(),
-      ' planets.'
+      ' planets located at ',
+      system.coordinates[0].uint2Str(),', ',system.coordinates[1].uint2Str()
     ));
 
     string memory image = generateSVGofToken(system, planets, transparentBackground);
@@ -182,11 +206,12 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
     return render;
   }
 
-  function populateNFTAttributes(Structs.System memory system, Structs.Planet[] memory planets) internal pure returns (bytes memory attributes) {
+  function populateNFTAttributes(Structs.System memory system, Structs.Planet[] memory planets) internal view returns (bytes memory attributes) {
+    string memory topResource = getTopResource(planets);
 
     attributes = abi.encodePacked(
       '"attributes": [{"trait_type": "system_coordinates", "value": "',
-      system.coordinates[0].uint2Str(),',',system.coordinates[1].uint2Str(),
+      system.coordinates[0].uint2Str(),', ',system.coordinates[1].uint2Str(),
       '"},{"trait_type": "star_type", "value": "',
       system.category,
       '"},{"trait_type": "planet_count", "value": "',
@@ -197,10 +222,27 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       system.nRocky.uint2Str(),
       '"},{"trait_type": "gas_giant_count", "value": "',
       system.nGas.uint2Str(),
+      '"},{"trait_type": "top_resource", "value": "',
+      topResource,
       '"}],'
     );
 
     return attributes;
   }
 
+  function getTopResource(Structs.Planet[] memory planets) public view returns (string memory topResource) {
+    uint8 topResourceCode;
+
+    for (uint i=0; i<planets.length;) {
+      for (uint j=0; j<3;) {
+        if(planets[i].resources[j] > topResourceCode) {
+          topResourceCode = planets[i].resources[j];
+        }
+        unchecked { ++ j; }
+      }
+      unchecked { ++ i; }
+    }
+
+    return resourceList[topResourceCode];
+  }
 }
