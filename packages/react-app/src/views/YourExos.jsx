@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { StarField, useStarField, StarFieldState, createStarsState } from "starfield-react";
 import { Link } from "react-router-dom";
-import { Button, Card, List, Menu } from "antd";
+import { Button, Card, List, Menu, Modal } from "antd";
 import { Address, AddressInput } from "../components";
 import { ethers } from "ethers";
 import "./YourExos.css";
@@ -73,6 +73,20 @@ function YourExos({
     return systemURI;
   };
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+  var jsonAttributes = 'foo';
   const [height, setHeight] = useState(1);
   const [opacity, setOpacity] = useState(0);
   useEffect(() => {
@@ -84,7 +98,12 @@ function YourExos({
       const uri = await getSystemURI(systemId, true);
       const jsonManifestString = atob(uri.substring(29));
       const jsonManifest = JSON.parse(jsonManifestString);
+      jsonAttributes = jsonManifest.attributes[0].trait_type;
+      console.log('---------------------------------------------');
+      console.log('---------------------------------------------');
       console.log(JSON.stringify(uri));
+      console.log('---------------------------------------------');
+      console.log('---------------------------------------------');
       setSystem(jsonManifest);
       setTimeout(async () => {
         setHasReachedLimit(false);
@@ -190,6 +209,9 @@ function YourExos({
           : ""}
       </div>
       <div style={{ position: "absolute", bottom: 10, width: "100%", margin: "auto", zIndex: 2 }}>
+        <Button type="primary" onClick={showModal}>
+          Open Modal
+        </Button>
         <Button
           type="primary"
           style={{ float: "right", marginRight: 10 }}
@@ -207,6 +229,13 @@ function YourExos({
           ""
         )}
       </div>
+      <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+        {/* {jsonAttributes ? '': jsonAttributes} */}
+        <p>{jsonAttributes}</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
     </div>
   );
 }
