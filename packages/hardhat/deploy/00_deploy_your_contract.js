@@ -53,15 +53,13 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     }
   });
 
-  const test = await deploy("Test", {
+  const returnPlanetResources = await deploy("ReturnPlanetResources", {
     from: deployer,
     log: true,
-    args: [
-      populateSystemLayoutStructs.address
-    ],
-    libraries: {
-      Structs: structs.address
-    }
+    // libraries: {
+    //   Structs: structs.address,
+    //   Trigonometry: trigonometry.address,
+    // }
   });
 
   await deploy("YourCollectible", {
@@ -69,6 +67,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     log: true,
     args: [
       populateSystemLayoutStructs.address,
+      returnPlanetResources.address,
       returnSystemSvg.address,
     ],
     libraries: {

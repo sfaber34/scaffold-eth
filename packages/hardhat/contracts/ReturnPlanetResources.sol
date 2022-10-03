@@ -1,26 +1,37 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import './Structs.sol';
-// import './Uint2Str.sol';
-// import './ToColor.sol';
+import "hardhat/console.sol";
 
 contract ReturnPlanetResources {
 
-  // using ToColor for bytes3;
-  // using Uint2Str for uint16;
+  function returnPlanetResources(bytes32 randomish, uint256 index, uint8 plCategory) public view returns (uint8[3] memory, uint8[3] memory) {
 
+    uint8[3] memory resources;
+    uint8[3] memory abundance;
 
-  function returnPlanetResources(bytes32 randomish, uint256 index, uint8 plCategory) external pure returns (uint8[4] memory resources) {
-    bytes32 randomishB = keccak256(abi.encodePacked( randomish, index));
+    resources[0] = 1;
+    resources[1] = 1;
+    resources[2] = 1;
 
-    // resources[0] = uint16(bytes2(0x0000) | ( bytes2(randomishB[10]) >> 8 ));
-    resources[0] = uint8( bytes1(randomishB[10]) );
-    resources[1] = uint8( bytes1(randomishB[11]) );
-    resources[2] = uint8( bytes1(randomishB[12]) );
-    resources[3] = uint8( bytes1(randomishB[13]) );
+    console.log("plCategory: %s", plCategory);
+    console.log("%s: %s", resources[0], abundance[0]);
+    console.log("%s: %s", resources[1], abundance[1]);
+    console.log("%s: %s", resources[2], abundance[2]);
+    return (resources, abundance);
+  }
 
-    return resources;
+  function resourceCodeToName(uint8 resourceCode) public pure returns (string memory) {
+
+    string[18] memory resourceList = [
+      '', 'Undiscovered', 'Hydrogen', 'Ammonia', 'Methane', 
+      'Aluminium', 'Iron', 'Nickel', 'Copper',
+      'Silicon', 'Gold', 'Titanium', 'Lithium',
+      'Cobalt', 'Platinum', 'Chromium', 'Terbium',
+      'Selenium'
+    ];
+
+    return resourceList[resourceCode];
   }
 
 }

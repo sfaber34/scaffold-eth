@@ -24,6 +24,22 @@ interface IPopulateSystemLayoutStructs {
   
 }
 
+interface IReturnPlanetResources {
+  
+  function returnPlanetResources(
+    bytes32 randomish, uint256 index, uint8 plCategory
+  ) external view returns (
+    uint8[3] memory, uint8[3] memory
+  );
+
+  function resourceCodeToName(
+    uint8 resourceCode
+  ) external pure returns (
+    string memory
+  );
+  
+}
+
 interface IReturnSystemSvg {
 
   function returnSystemSvg(
@@ -53,14 +69,6 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  string[17] public resourceList = [
-    '', 'Hydrogen', 'Ammonia', 'Methane', 
-    'Aluminium', 'Iron', 'Nickel', 'Copper',
-    'Silicon', 'Gold', 'Titanium', 'Lithium',
-    'Cobalt', 'Platinum', 'Chromium', 'Terbium',
-    'Selenium'
-  ];
-
   // Funds to Exos treasury 
   address payable public constant recipient = payable(0x859a0ef4b9D689623C8a83e7eEe7799Fa091976b);
 
@@ -69,17 +77,24 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
 
   mapping (uint256 => bytes32) public randomish;
   address public populateSystemLayoutStructsAddress;
+  address public returnPlanetResourcesAddress;
   address public returnSystemSvgAddress;
   constructor(
     address _populateSystemLayoutStructsAddress,
+    address _returnPlanetResourcesAddress,
     address _returnSystemSvgAddress
   ) ERC721("Exos", "EXOS") {
     populateSystemLayoutStructsAddress = _populateSystemLayoutStructsAddress;
+    returnPlanetResourcesAddress = _returnPlanetResourcesAddress;
     returnSystemSvgAddress = _returnSystemSvgAddress;
   } 
 
   function updatePopulateSystemLayoutStructsAddress(address newAddress) public onlyOwner {
     populateSystemLayoutStructsAddress = newAddress;
+  } 
+
+  function updateReturnPlanetResourcesAddress(address newAddress) public onlyOwner {
+    returnPlanetResourcesAddress = newAddress;
   } 
 
   function updateReturnSystemSvgAddress(address newAddress) public onlyOwner {
@@ -136,6 +151,12 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
     }
 
     (Structs.System memory system, Structs.Planet[] memory planets) = IPopulateSystemLayoutStructs(populateSystemLayoutStructsAddress).populateSystemLayoutStructs(randomish[id]);
+
+    for (uint i=0; i<planets.length;) {
+      (planets[i].resources, planets[i].resourceAbundance) = IReturnPlanetResources(returnPlanetResourcesAddress).returnPlanetResources(randomish[id], i, planets[i].category);
+      
+      unchecked { ++ i; }
+    }
     
     string memory description = string(abi.encodePacked(
       system.name,
@@ -230,7 +251,7 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
     return attributes;
   }
 
-  function getTopResource(Structs.Planet[] memory planets) public view returns (string memory topResource) {
+  function getTopResource(Structs.Planet[] memory planets) public view returns (string memory) {
     uint8 topResourceCode;
 
     for (uint i=0; i<planets.length;) {
@@ -243,6 +264,10 @@ contract YourCollectible is ERC721Enumerable, ReentrancyGuard, Ownable {
       unchecked { ++ i; }
     }
 
-    return resourceList[topResourceCode];
+    string memory topResourceName = IReturnPlanetResources(returnPlanetResourcesAddress).resourceCodeToName(topResourceCode);
+
+    console.log("Top Resource: %s", topResourceName);
+
+    return topResourceName;
   }
 }
